@@ -1,5 +1,5 @@
 <script>
-  import { asset } from '$app/paths';
+  import { base } from '$app/paths';
 </script>
 
 <nav>
@@ -15,6 +15,6 @@
 <p>I am a graduate student at MIT.</p>
 
 <img
-  src={asset('/images/pinot.png')}
+  src={base + '/images/pinot.png'}
   alt="Enjoy a picture of Pinot smelling tulips last spring"
 />
