@@ -11,6 +11,6 @@
 <p>I am a graduate student at MIT.</p>
 
 <img
-  src="/images/pinot.png"
+  src={asset('/images/pinot.png')}
   alt="Enjoy a picture of Pinot smelling tulips last spring"
 />
