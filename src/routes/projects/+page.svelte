@@ -15,17 +15,17 @@
   <a href="https://github.com/joseph-mit" target="_blank">GitHub</a>
 </nav>
 
-<h1>Projects</h1>
+<h1>Projects ({projects.length})</h1>
 
 <section id="projects">
   {#each projects as p}
     <article>
-      <h2>Campus Mobility Map</h2>
+      <h2>{p.title}</h2>
       <img
-        src={base + "/images/pinot.png"}
-        alt="Project thumbnail placeholder"
+        src={base + p.image}
+        alt={p.title}
       />
-      <p>A quick explorable map prototype for commuting patterns around Cambridge.</p>
+      <p>{p.description}</p>
     </article>
   {/each}
 </section>
