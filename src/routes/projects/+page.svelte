@@ -1,5 +1,6 @@
 <script>
   import projects from "$lib/projects.json";
+  import { base } from "$app/paths";
 </script>
 
 <svelte:head>
@@ -16,4 +17,15 @@
 
 <h1>Projects</h1>
 
-<pre>{JSON.stringify(projects, null, "\t")}</pre>
+<section id="projects">
+  {#each projects as p}
+    <article>
+      <h2>Campus Mobility Map</h2>
+      <img
+        src={base + "/images/pinot.png"}
+        alt="Project thumbnail placeholder"
+      />
+      <p>A quick explorable map prototype for commuting patterns around Cambridge.</p>
+    </article>
+  {/each}
+</section>
