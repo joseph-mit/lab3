@@ -1,0 +1,17 @@
+[
+  {
+    "title": "Green Angel",
+    "author": "Lyudmyla Morhun",
+    "image": "/images/green-angel.jpg"
+  },
+  {
+    "title": "Stories of Your Life and Others",
+    "author": "Ted Chiang",
+    "image": "/images/stories-of-your-life.jpg"
+  },
+  {
+    "title": "Parable of the Sower",
+    "author": "Octavia E. Butler",
+    "image": "/images/parable-of-the-sower.jpg"
+  }
+]
