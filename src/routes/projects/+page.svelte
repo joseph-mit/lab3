@@ -1,6 +1,6 @@
 <script>
   import projects from "$lib/projects.json";
-  import { base } from "$app/paths";
+  import Project from "$lib/Project.svelte";
 </script>
 
 <svelte:head>
@@ -17,15 +17,8 @@
 
 <h1>Projects ({projects.length})</h1>
 
-<section id="projects">
+<div class="projects">
   {#each projects as p}
-    <article>
-      <h2>{p.title}</h2>
-      <img
-        src={base + p.image}
-        alt={p.title}
-      />
-      <p>{p.description}</p>
-    </article>
+    <Project data={p} />
   {/each}
-</section>
+</div>

@@ -1,5 +1,7 @@
 <script>
-  import { base } from '$app/paths';
+  import { base } from "$app/paths";
+  import projects from "$lib/projects.json";
+  import Project from "$lib/Project.svelte";
 </script>
 
 <nav>
@@ -15,6 +17,14 @@
 <p>I am a graduate student at MIT.</p>
 
 <img
-  src={base + '/images/pinot.png'}
+  src={base + "/images/pinot.png"}
   alt="Enjoy a picture of Pinot smelling tulips last spring"
 />
+
+<h2>Latest projects</h2>
+
+<div class="projects">
+  {#each projects.slice(0, 3) as p}
+    <Project data={p} />
+  {/each}
+</div>
