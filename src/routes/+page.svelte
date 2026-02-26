@@ -38,7 +38,7 @@
 </div>
 
 <section class="latest-projects">
-  <h2>Latest projects</h2>
+  <h2>Latest Projects</h2>
 
   <div class="projects-grid">
     {#each projects.slice(0, 3) as p}
@@ -79,19 +79,29 @@
     gap: 1.25rem;
   }
 
+  .latest-projects {
+    margin-top: 2.5rem;
+  }
+
   .latest-projects h2 {
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
+    font-size: 2rem;
+    line-height: 1.1;
   }
 
   .projects-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 2rem;
     align-items: start;
   }
 
   @media (max-width: 900px) {
     .home-top {
+      grid-template-columns: 1fr;
+    }
+
+    .projects-grid {
       grid-template-columns: 1fr;
     }
   }
