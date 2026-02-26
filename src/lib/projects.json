@@ -1,0 +1,62 @@
+[
+  {
+    "title": "Campus Mobility Map",
+    "image": "/images/pinot.png",
+    "description": "A quick explorable map prototype for commuting patterns around Cambridge."
+  },
+  {
+    "title": "Housing Affordability Explorer",
+    "image": "/images/pinot.png",
+    "description": "Small multiples for rent burden and income bands, with filters for neighborhood."
+  },
+  {
+    "title": "Real Estate Carbon Budget Dashboard",
+    "image": "/images/pinot.png",
+    "description": "A simple view comparing operational vs embodied emissions under retrofit scenarios."
+  },
+  {
+    "title": "Transit Catchment Story Map",
+    "image": "/images/pinot.png",
+    "description": "A narrative map showing walk sheds and transfer friction across key stations."
+  },
+  {
+    "title": "Solar Potential Quick Look",
+    "image": "/images/pinot.png",
+    "description": "A lightweight calculator to sanity-check rooftop PV capacity by building type."
+  },
+  {
+    "title": "Retail Footfall Heatmap",
+    "image": "/images/pinot.png",
+    "description": "Weekday vs weekend foot traffic patterns for a corridor, grouped by hour."
+  },
+  {
+    "title": "Zoning Change Timeline",
+    "image": "/images/pinot.png",
+    "description": "A clean timeline of rezoning events, with quick links to the underlying documents."
+  },
+  {
+    "title": "Flood Risk Parcel Viewer",
+    "image": "/images/pinot.png",
+    "description": "Parcel-level lookup for flood zones and elevation, built for fast \"what if\" checks."
+  },
+  {
+    "title": "Construction Cost Sensitivity Tool",
+    "image": "/images/pinot.png",
+    "description": "A small sensitivity grid for hard-cost inflation, interest rates, and stabilized NOI."
+  },
+  {
+    "title": "Data Center Load Monitor",
+    "image": "/images/pinot.png",
+    "description": "Sketch of an interface to track interconnection requests and projected MW demand."
+  },
+  {
+    "title": "Noise Complaints Analyzer",
+    "image": "/images/pinot.png",
+    "description": "A quick pass at cleaning and summarizing complaint text by topic and geography."
+  },
+  {
+    "title": "Street Tree Equity Audit",
+    "image": "/images/pinot.png",
+    "description": "A simple comparison of canopy coverage vs heat exposure across census tracts."
+  }
+]
