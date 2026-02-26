@@ -1,3 +1,7 @@
+<script>
+  import { asset } from '$app/paths';
+</script>
+
 <nav>
   <a href="." class="current">Home</a>
   <a href="projects">Projects</a>

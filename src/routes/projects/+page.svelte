@@ -1,4 +1,6 @@
-
+<script>
+  import { asset } from '$app/paths';
+</script>
 
 <svelte:head>
   <title>Projects</title>
