@@ -17,8 +17,17 @@
 
 <h1>Projects ({projects.length})</h1>
 
-<div class="projects">
+<div class="projects-grid">
   {#each projects as p}
     <Project data={p} />
   {/each}
 </div>
+
+<style>
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    align-items: start;
+  }
+</style>

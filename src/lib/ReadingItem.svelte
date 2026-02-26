@@ -10,28 +10,41 @@
     alt={data.title}
   />
 
-  <div>
+  <div class="reading-copy">
     <h3>{data.title}</h3>
-    <p>{data.author}</p>
+    <p class="author">{data.author}</p>
   </div>
 </div>
 
 <style>
   .reading-item {
-    display: flex;
+    display: grid;
+    grid-template-columns: 90px 1fr;
     gap: 1rem;
-    align-items: flex-start;
+    align-items: start;
   }
 
   img {
-    width: 90px;
-    height: auto;
     display: block;
-    flex-shrink: 0;
+    width: 90px;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+    border-radius: 0.35rem;
   }
 
-  h3,
-  p {
+  .reading-copy {
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  h3 {
     margin: 0;
+    font-size: 1.1rem;
+    line-height: 1.2;
+  }
+
+  .author {
+    margin: 0;
+    font-style: italic;
   }
 </style>
