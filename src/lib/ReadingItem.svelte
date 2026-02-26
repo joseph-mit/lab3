@@ -10,9 +10,9 @@
     alt={data.title}
   />
 
-  <div class="reading-text">
+  <div>
     <h3>{data.title}</h3>
-    <p class="author">{data.author}</p>
+    <p>{data.author}</p>
   </div>
 </div>
 
@@ -30,18 +30,8 @@
     flex-shrink: 0;
   }
 
-  .reading-text {
-    display: grid;
-    gap: 0.35rem;
-  }
-
-  h3 {
+  h3,
+  p {
     margin: 0;
-    font-size: 1.1rem;
-  }
-
-  .author {
-    margin: 0;
-    font-style: italic;
   }
 </style>
