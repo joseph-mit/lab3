@@ -20,7 +20,7 @@
   if (storage?.colorScheme) colorScheme = storage.colorScheme;
 
   // Persist whenever it changes
-  $: if (storage) storage.colorScheme = colorScheme;
+  $: storage && (storage.colorScheme = colorScheme);
 
   // Apply to <html>
   $: globalThis?.document?.documentElement?.style.setProperty(
@@ -29,21 +29,18 @@
   );
 
   // --- Current-page highlighting ---
-  $: routeId = $page.route.id;
+  $: currentRouteId = $page.route?.id ?? "/";
 
   const isCurrent = (url) => {
     if (isExternal(url)) return false;
 
-    // Preferred: route id
-    if (routeId) {
-      if (url === "/") return routeId === "/";
-      return routeId === url || routeId.startsWith(`${url}/`);
-    }
+    const target = url === "/" ? "/" : url;
 
-    // Fallback: pathname compare
-    const pathname = $page.url.pathname;
-    if (url === "/") return pathname === `${base}/` || pathname === base || pathname === "/";
-    return pathname === `${base}${url}` || pathname.startsWith(`${base}${url}/`);
+    // Home must be exact match only
+    if (target === "/") return currentRouteId === "/";
+
+    // Exact match, plus keep highlight for nested routes under that section
+    return currentRouteId === target || currentRouteId.startsWith(`${target}/`);
   };
 </script>
 
@@ -61,8 +58,8 @@
     {#each pages as p}
       <a
         href={hrefFor(p.url)}
-        target={isExternal(p.url) ? "_blank" : undefined}
-        rel={isExternal(p.url) ? "noreferrer" : undefined}
+        target={isExternal(p.url) ? "_blank" : null}
+        rel={isExternal(p.url) ? "noreferrer" : null}
         class:current={isCurrent(p.url)}
         aria-current={isCurrent(p.url) ? "page" : undefined}
       >
@@ -77,9 +74,10 @@
 <style>
   .layout {
     position: relative;
-    padding-top: 2.25rem;
+    padding-top: 2.25rem; /* makes room so switcher doesn't sit under the nav */
   }
 
+  /* Theme control: visible + clickable + not covered by nav */
   .color-scheme-switch {
     position: absolute;
     top: 0;
