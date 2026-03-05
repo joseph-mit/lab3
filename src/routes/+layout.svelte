@@ -2,34 +2,134 @@
   import { base } from "$app/paths";
   import { page } from "$app/stores";
 
-  let pages = [
+  const pages = [
     { url: "/", title: "Home" },
     { url: "/projects", title: "Projects" },
-    { url: "/resume", title: "resume" },
+    { url: "/resume", title: "Resume" },
     { url: "/contact", title: "Contact" },
     { url: "https://github.com/joseph-mit", title: "GitHub" }
   ];
+
+  const isExternal = (url) => url.startsWith("http");
+  const hrefFor = (url) => (isExternal(url) ? url : base + url);
+
+  // --- Theme switcher state (3 modes: auto/light/dark) ---
+  let colorScheme = "light dark"; // Automatic
+
+  const storage = globalThis?.localStorage;
+  if (storage?.colorScheme) colorScheme = storage.colorScheme;
+
+  // Persist whenever it changes
+  $: storage && (storage.colorScheme = colorScheme);
+
+  // Apply to <html>
+  $: globalThis?.document?.documentElement?.style.setProperty(
+    "color-scheme",
+    colorScheme
+  );
+
+  // --- Current-page highlighting ---
+  $: pathname = $page.url.pathname;
+
+  const isCurrent = (url) => {
+    if (isExternal(url)) return false;
+
+    if (url === "/") {
+      // exact match for home (otherwise "/" matches everything)
+      return pathname === base || pathname === base + "/" || pathname === "/";
+    }
+
+    // startsWith so subroutes still highlight
+    return pathname.startsWith(base + url);
+  };
 </script>
 
-<nav>
-  {#each pages as p}
-    <a
-      href={p.url.startsWith("http") ? p.url : base + p.url}
-      target={p.url.startsWith("http") ? "_blank" : null}
-      rel={p.url.startsWith("http") ? "noreferrer" : null}
-      class:current={
-        p.url.startsWith("http")
-          ? false
-          : p.url === "/"
-            ? $page.url.pathname === (base + "/") ||
-              $page.url.pathname === base ||
-              $page.url.pathname === "/"
-            : $page.url.pathname.startsWith(base + p.url)
-      }
-    >
-      {p.title}
-    </a>
-  {/each}
-</nav>
+<div class="layout">
+  <label class="color-scheme-switch">
+    Theme:
+    <select bind:value={colorScheme}>
+      <option value="light dark">Automatic</option>
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+    </select>
+  </label>
 
-<slot />
+  <nav aria-label="Primary">
+    {#each pages as p}
+      <a
+        href={hrefFor(p.url)}
+        target={isExternal(p.url) ? "_blank" : null}
+        rel={isExternal(p.url) ? "noreferrer" : null}
+        class:current={isCurrent(p.url)}
+      >
+        {p.title}
+      </a>
+    {/each}
+  </nav>
+
+  <slot />
+</div>
+
+<style>
+  .layout {
+    position: relative;
+    padding-top: 2.25rem; /* makes room so switcher doesn't sit under the nav */
+  }
+
+  /* Theme control: visible + clickable + not covered by nav */
+  .color-scheme-switch {
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    z-index: 2;
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+
+    font-size: 0.9rem;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--border-gray);
+    border-radius: 0.5rem;
+    background: canvas;
+    color: canvastext;
+  }
+
+  .color-scheme-switch select {
+    font: inherit;
+    background: canvas;
+    color: canvastext;
+    border: 1px solid var(--border-gray);
+    border-radius: 0.4rem;
+    padding: 0.15rem 0.35rem;
+  }
+
+  nav {
+    --border-color: oklch(50% 10% 200 / 40%);
+    display: flex;
+    justify-content: center;
+    gap: clamp(1rem, 4vw, 3.5rem);
+
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 2rem;
+    padding-bottom: 0.3rem;
+  }
+
+  nav a {
+    display: inline-block;
+    padding: 0.5rem 0.75rem;
+    text-decoration: none;
+    color: inherit;
+    border-bottom: 4px solid transparent;
+    border-radius: 0.35rem;
+  }
+
+  nav a:hover {
+    background-color: color-mix(in oklch, var(--color-accent), canvas 85%);
+  }
+
+  nav a.current {
+    border-bottom-color: var(--border-color);
+    font-weight: 600;
+  }
+</style>
