@@ -15,25 +15,20 @@
 
   // --- Theme switcher state (3 modes: auto/light/dark) ---
   let colorScheme = "light dark"; // Automatic
-
   const storage = globalThis?.localStorage;
   if (storage?.colorScheme) colorScheme = storage.colorScheme;
 
   $: storage && (storage.colorScheme = colorScheme);
-
   $: globalThis?.document?.documentElement?.style.setProperty(
     "color-scheme",
     colorScheme
   );
 
   // --- Current-page highlighting ---
-  // Use the actual browser URL pathname (always defined).
-  // Then strip the GitHub Pages base (e.g. "/lab3") so we compare against "/projects", "/resume", etc.
   const stripTrailingSlash = (p) => (p.length > 1 ? p.replace(/\/+$/, "") : p);
 
   $: currentPath = stripTrailingSlash($page.url.pathname);
   $: basePath = stripTrailingSlash(base || "");
-
   $: pathNoBase = (() => {
     if (basePath && currentPath.startsWith(basePath)) {
       const withoutBase = currentPath.slice(basePath.length);
@@ -42,16 +37,11 @@
     return stripTrailingSlash(currentPath || "/");
   })();
 
-  const isCurrent = (url) => {
+  const isCurrent = (url, active) => {
     if (isExternal(url)) return false;
-
     const target = stripTrailingSlash(url);
-
-    // Home must be exact match only
-    if (target === "/") return pathNoBase === "/";
-
-    // Exact match + keep highlight for subroutes
-    return pathNoBase === target || pathNoBase.startsWith(`${target}/`);
+    if (target === "/") return active === "/";
+    return active === target || active.startsWith(`${target}/`);
   };
 </script>
 
@@ -67,12 +57,12 @@
 
   <nav aria-label="Primary">
     {#each pages as p}
-      <a
+
         href={hrefFor(p.url)}
         target={isExternal(p.url) ? "_blank" : null}
         rel={isExternal(p.url) ? "noreferrer" : null}
-        class:current={isCurrent(p.url)}
-        aria-current={isCurrent(p.url) ? "page" : undefined}
+        class:current={isCurrent(p.url, pathNoBase)}
+        aria-current={isCurrent(p.url, pathNoBase) ? "page" : undefined}
       >
         {p.title}
       </a>
@@ -85,20 +75,17 @@
 <style>
   .layout {
     position: relative;
-    padding-top: 2.25rem; /* makes room so switcher doesn't sit under the nav */
+    padding-top: 2.25rem;
   }
 
-  /* Theme control: visible + clickable + not covered by nav */
   .color-scheme-switch {
     position: absolute;
     top: 0;
     right: 0;
-
     z-index: 2;
     display: inline-flex;
     gap: 0.5rem;
     align-items: center;
-
     font-size: 0.9rem;
     padding: 0.25rem 0.5rem;
     border: 1px solid var(--border-gray);
@@ -121,7 +108,6 @@
     display: flex;
     justify-content: center;
     gap: clamp(1rem, 4vw, 3.5rem);
-
     border-bottom: 2px solid var(--border-color);
     margin-bottom: 2rem;
     padding-bottom: 0.3rem;
