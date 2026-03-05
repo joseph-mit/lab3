@@ -28,33 +28,24 @@
     colorScheme
   );
 
-    // --- Current-page highlighting  ---
-  const stripTrailingSlash = (p) => (p !== "/" ? p.replace(/\/$/, "") : "/");
-
-  $: pathname = stripTrailingSlash($page.url.pathname);
-
-  const basePath = base && base !== "/" ? stripTrailingSlash(base) : "";
-
-  const internalPathFor = (url) => {
-    const u = stripTrailingSlash(url);
-
-    // Home should map to the app root (basePath if set, else "/")
-    if (u === "/") return basePath || "/";
-
-    // Other routes are basePath + route
-    return stripTrailingSlash(basePath + u);
+  // --- Current-page highlighting (robust) ---
+  const normalizePath = (p) => {
+    if (!p) return "/";
+    // remove trailing slashes (but keep "/" if that's all that's left)
+    const trimmed = p.replace(/\/+$/, "");
+    return trimmed === "" ? "/" : trimmed;
   };
+
+  $: currentPath = normalizePath($page.url.pathname);
 
   const isCurrent = (url) => {
     if (isExternal(url)) return false;
 
-    const target = internalPathFor(url);
+    // Compare against the *actual* internal href we render (includes base)
+    const targetPath = normalizePath(hrefFor(url));
 
-    // exact match OR subroute match (except for "/")
-    return (
-      pathname === target ||
-      (target !== "/" && pathname.startsWith(target + "/"))
-    );
+    // Exact match OR subroute match (e.g., /projects/foo should still highlight Projects)
+    return currentPath === targetPath || currentPath.startsWith(targetPath + "/");
   };
 </script>
 
@@ -75,6 +66,7 @@
         target={isExternal(p.url) ? "_blank" : null}
         rel={isExternal(p.url) ? "noreferrer" : null}
         class:current={isCurrent(p.url)}
+        aria-current={isCurrent(p.url) ? "page" : undefined}
       >
         {p.title}
       </a>
