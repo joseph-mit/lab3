@@ -57,7 +57,7 @@
   }
 
   .reading-panel {
-    background: #eadfe4;
+    background: color-mix(in oklch, var(--color-accent), canvas 88%);
     padding: 1.5rem;
     border-radius: 0.9rem;
   }
