@@ -13,8 +13,8 @@
   const isExternal = (url) => /^https?:\/\//.test(url);
   const hrefFor = (url) => (isExternal(url) ? url : `${base}${url}`);
 
-  // --- Theme switcher state (3 modes: auto/light/dark) ---
-  let colorScheme = "light dark"; // Automatic
+  // --- Theme switcher state ---
+  let colorScheme = "light dark";
   const storage = globalThis?.localStorage;
   if (storage?.colorScheme) colorScheme = storage.colorScheme;
 
@@ -23,27 +23,10 @@
     "color-scheme",
     colorScheme
   );
-
-  // --- Current-page highlighting ---
-  const stripTrailingSlash = (p) => (p.length > 1 ? p.replace(/\/+$/, "") : p);
-
-  $: currentPath = stripTrailingSlash($page.url.pathname);
-  $: basePath = stripTrailingSlash(base || "");
-  $: pathNoBase = (() => {
-    if (basePath && currentPath.startsWith(basePath)) {
-      const withoutBase = currentPath.slice(basePath.length);
-      return stripTrailingSlash(withoutBase || "/");
-    }
-    return stripTrailingSlash(currentPath || "/");
-  })();
-
-  const isCurrent = (url, active) => {
-    if (isExternal(url)) return false;
-    const target = stripTrailingSlash(url);
-    if (target === "/") return active === "/";
-    return active === target || active.startsWith(`${target}/`);
-  };
 </script>
+
+<!-- DEBUG: remove this line once highlighting works -->
+<p style="font-size:12px; color:red;">route.id = {$page.route?.id} | pathname = {$page.url.pathname} | base = {base}</p>
 
 <div class="layout">
   <label class="color-scheme-switch">
@@ -57,12 +40,18 @@
 
   <nav aria-label="Primary">
     {#each pages as p}
+      {@const active = $page.route?.id === "/" ? "/" : $page.route?.id ?? ""}
+      {@const target = isExternal(p.url) ? null : p.url}
+      {@const match = target === null
+        ? false
+        : target === "/"
+          ? active === "/"
+          : active === target || active.startsWith(target + "/")}
 
         href={hrefFor(p.url)}
         target={isExternal(p.url) ? "_blank" : null}
         rel={isExternal(p.url) ? "noreferrer" : null}
-        class:current={isCurrent(p.url, pathNoBase)}
-        aria-current={isCurrent(p.url, pathNoBase) ? "page" : undefined}
+        class:current={match}
       >
         {p.title}
       </a>
