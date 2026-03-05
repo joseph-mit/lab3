@@ -28,19 +28,33 @@
     colorScheme
   );
 
-  // --- Current-page highlighting ---
-  $: pathname = $page.url.pathname;
+    // --- Current-page highlighting  ---
+  const stripTrailingSlash = (p) => (p !== "/" ? p.replace(/\/$/, "") : "/");
+
+  $: pathname = stripTrailingSlash($page.url.pathname);
+
+  const basePath = base && base !== "/" ? stripTrailingSlash(base) : "";
+
+  const internalPathFor = (url) => {
+    const u = stripTrailingSlash(url);
+
+    // Home should map to the app root (basePath if set, else "/")
+    if (u === "/") return basePath || "/";
+
+    // Other routes are basePath + route
+    return stripTrailingSlash(basePath + u);
+  };
 
   const isCurrent = (url) => {
     if (isExternal(url)) return false;
 
-    if (url === "/") {
-      // exact match for home (otherwise "/" matches everything)
-      return pathname === base || pathname === base + "/" || pathname === "/";
-    }
+    const target = internalPathFor(url);
 
-    // startsWith so subroutes still highlight
-    return pathname.startsWith(base + url);
+    // exact match OR subroute match (except for "/")
+    return (
+      pathname === target ||
+      (target !== "/" && pathname.startsWith(target + "/"))
+    );
   };
 </script>
 
