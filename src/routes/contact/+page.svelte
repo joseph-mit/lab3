@@ -1,14 +1,6 @@
 <svelte:head>
-  <title>Contact me</title>
+  <title>Contact</title>
 </svelte:head>
-
-<nav>
-  <a href=".">Home</a>
-  <a href="projects">Projects</a>
-  <a href="contact" class="current">Contact</a>
-  <a href="resume">Resume</a>
-  <a href="https://github.com/joseph-mit" target="_blank">GitHub</a>
-</nav>
 
 <h1>Contact</h1>
 

@@ -2,14 +2,6 @@
   <title>Resume</title>
 </svelte:head>
 
-<nav>
-  <a href=".">Home</a>
-  <a href="projects">Projects</a>
-  <a href="contact">Contact</a>
-  <a href="resume" class="current">Resume</a>
-  <a href="https://github.com/joseph-mit" target="_blank">GitHub</a>
-</nav>
-
 <h1>Resume</h1>
 
 <section id="resume">
