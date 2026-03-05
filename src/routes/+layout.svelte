@@ -10,8 +10,8 @@
     { url: "https://github.com/joseph-mit", title: "GitHub" }
   ];
 
-  const isExternal = (url) => url.startsWith("http");
-  const hrefFor = (url) => (isExternal(url) ? url : base + url);
+  const isExternal = (url) => /^https?:\/\//.test(url);
+  const hrefFor = (url) => (isExternal(url) ? url : `${base}${url}`);
 
   // --- Theme switcher state (3 modes: auto/light/dark) ---
   let colorScheme = "light dark"; // Automatic
@@ -28,25 +28,30 @@
     colorScheme
   );
 
-  // --- Current-page highlighting (robust) ---
-  const normalizePath = (p) => {
-    if (!p) return "/";
-    // remove trailing slashes (but keep "/" if that's all that's left)
-    const trimmed = p.replace(/\/+$/, "");
-    return trimmed === "" ? "/" : trimmed;
-  };
+  // --- Current-page highlighting ---
+  const normalize = (p) => (p.length > 1 && p.endsWith("/") ? p.slice(0, -1) : p);
 
-  $: currentPath = normalizePath($page.url.pathname);
+  $: currentPath = normalize($page.url.pathname);
+
+  const linkPathname = (url) => {
+    if (isExternal(url)) return null;
+    // Turn the rendered href into a pathname we can compare with $page.url.pathname
+    return normalize(new URL(hrefFor(url), $page.url).pathname);
+  };
 
   const isCurrent = (url) => {
-    if (isExternal(url)) return false;
+    const target = linkPathname(url);
+    if (!target) return false;
 
-    // Compare against the *actual* internal href we render (includes base)
-    const targetPath = normalizePath(hrefFor(url));
+    // Home: exact match only
+    const homeTarget = normalize(new URL(hrefFor("/"), $page.url).pathname);
+    if (target === homeTarget) return currentPath === homeTarget;
 
-    // Exact match OR subroute match (e.g., /projects/foo should still highlight Projects)
-    return currentPath === targetPath || currentPath.startsWith(targetPath + "/");
+    // Other pages: exact match, plus keep highlight for subroutes
+    return currentPath === target || currentPath.startsWith(`${target}/`);
   };
+
+
 </script>
 
 <div class="layout">
