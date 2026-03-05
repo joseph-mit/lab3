@@ -29,14 +29,24 @@
   );
 
   // --- Current-page highlighting ---
-  const normalize = (p) => (p.length > 1 && p.endsWith("/") ? p.slice(0, -1) : p);
+  const strip_trailing_slash = (p) => (p.length > 1 ? p.replace(/\/+$/, "") : p);
 
-  $: currentPath = normalize($page.url.pathname);
+  $: current_path = strip_trailing_slash($page.url.pathname);
 
-  const linkPathname = (url) => {
-    if (isExternal(url)) return null;
-    // Turn the rendered href into a pathname we can compare with $page.url.pathname
-    return normalize(new URL(hrefFor(url), $page.url).pathname);
+  const full_path_for = (url) => strip_trailing_slash(`${base}${url}`);
+
+  const home_path = strip_trailing_slash(`${base}/`);
+
+  const isCurrent = (url) => {
+    if (isExternal(url)) return false;
+
+    const target = full_path_for(url);
+
+    // Home must be exact match only
+    if (target === home_path) return current_path === home_path;
+
+    // Other pages: exact match, plus highlight for subroutes
+    return current_path === target || current_path.startsWith(`${target}/`);
   };
 
   const isCurrent = (url) => {
