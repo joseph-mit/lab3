@@ -15,37 +15,43 @@
 
   // --- Theme switcher state (3 modes: auto/light/dark) ---
   let colorScheme = "light dark"; // Automatic
+
   const storage = globalThis?.localStorage;
   if (storage?.colorScheme) colorScheme = storage.colorScheme;
 
-  $: if (storage) storage.colorScheme = colorScheme;
-  $: globalThis?.document?.documentElement?.style.setProperty("color-scheme", colorScheme);
+  $: storage && (storage.colorScheme = colorScheme);
 
-  // --- Current-page highlighting (robust on GitHub Pages) ---
-  const stripTrailingSlash = (p) => (p && p.length > 1 ? p.replace(/\/+$/, "") : "/");
+  $: globalThis?.document?.documentElement?.style.setProperty(
+    "color-scheme",
+    colorScheme
+  );
 
-  // Prefer SvelteKit's route id (base-path independent).
-  // Fall back to URL pathname (base stripped) if route id is missing (rare).
-  $: activePath = (() => {
-    const routeId = $page.route?.id;
-    if (routeId) return stripTrailingSlash(routeId);
+  // --- Current-page highlighting ---
+  // Use the actual browser URL pathname (always defined).
+  // Then strip the GitHub Pages base (e.g. "/lab3") so we compare against "/projects", "/resume", etc.
+  const stripTrailingSlash = (p) => (p.length > 1 ? p.replace(/\/+$/, "") : p);
 
-    const raw = $page.url.pathname; // e.g. /lab3/projects/ on GitHub Pages
-    const b = stripTrailingSlash(base || ""); // e.g. /lab3
-    const withoutBase = b && raw.startsWith(b) ? raw.slice(b.length) : raw; // -> /projects/
-    return stripTrailingSlash(withoutBase || "/");
+  $: currentPath = stripTrailingSlash($page.url.pathname);
+  $: basePath = stripTrailingSlash(base || "");
+
+  $: pathNoBase = (() => {
+    if (basePath && currentPath.startsWith(basePath)) {
+      const withoutBase = currentPath.slice(basePath.length);
+      return stripTrailingSlash(withoutBase || "/");
+    }
+    return stripTrailingSlash(currentPath || "/");
   })();
 
   const isCurrent = (url) => {
     if (isExternal(url)) return false;
 
-    const target = stripTrailingSlash(url); // '/', '/projects', etc.
+    const target = stripTrailingSlash(url);
 
     // Home must be exact match only
-    if (target === "/") return activePath === "/";
+    if (target === "/") return pathNoBase === "/";
 
-    // Exact match + allow subroutes (if you ever add them later)
-    return activePath === target || activePath.startsWith(`${target}/`);
+    // Exact match + keep highlight for subroutes
+    return pathNoBase === target || pathNoBase.startsWith(`${target}/`);
   };
 </script>
 
@@ -79,9 +85,10 @@
 <style>
   .layout {
     position: relative;
-    padding-top: 2.25rem;
+    padding-top: 2.25rem; /* makes room so switcher doesn't sit under the nav */
   }
 
+  /* Theme control: visible + clickable + not covered by nav */
   .color-scheme-switch {
     position: absolute;
     top: 0;
