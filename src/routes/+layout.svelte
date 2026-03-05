@@ -1,9 +1,24 @@
+<script>
+  import { base } from "$app/paths";
+
+  let pages = [
+    { url: "/", title: "Home" },
+    { url: "/projects", title: "Projects" },
+    { url: "/contact", title: "Contact" },
+    { url: "/resume", title: "Resume" },
+    { url: "https://github.com/joseph-mit", title: "GitHub" }
+  ];
+</script>
+
 <nav>
-  <a href="." class="current">Home</a>
-  <a href="projects">Projects</a>
-  <a href="contact">Contact</a>
-  <a href="resume">Resume</a>
-  <a href="https://github.com/joseph-mit" target="_blank">GitHub</a>
+  {#each pages as p}
+    <a
+      href={p.url.startsWith("http") ? p.url : base + p.url}
+      target={p.url.startsWith("http") ? "_blank" : null}
+    >
+      {p.title}
+    </a>
+  {/each}
 </nav>
 
 <slot />
