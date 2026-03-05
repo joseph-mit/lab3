@@ -19,28 +19,41 @@
   const storage = globalThis?.localStorage;
   if (storage?.colorScheme) colorScheme = storage.colorScheme;
 
-  // Persist whenever it changes
   $: storage && (storage.colorScheme = colorScheme);
 
-  // Apply to <html>
   $: globalThis?.document?.documentElement?.style.setProperty(
     "color-scheme",
     colorScheme
   );
 
-  // --- Current-page highlighting ---
-  $: currentRouteId = $page.route?.id ?? "/";
+  // --- Current-page highlighting  ---
+  const stripTrailingSlash = (p) => (p.length > 1 ? p.replace(/\/+$/, "") : p);
+
+  let currentPath = "/";
+  let pathNoBase = "/";
+
+  $: currentPath = stripTrailingSlash($page.url.pathname);
+
+  $: {
+    const b = stripTrailingSlash(base || "");
+    if (b && currentPath.startsWith(b)) {
+      const withoutBase = currentPath.slice(b.length);
+      pathNoBase = stripTrailingSlash(withoutBase || "/");
+    } else {
+      pathNoBase = currentPath;
+    }
+  }
 
   const isCurrent = (url) => {
     if (isExternal(url)) return false;
 
-    const target = url === "/" ? "/" : url;
+    const target = stripTrailingSlash(url);
 
     // Home must be exact match only
-    if (target === "/") return currentRouteId === "/";
+    if (target === "/") return pathNoBase === "/";
 
-    // Exact match, plus keep highlight for nested routes under that section
-    return currentRouteId === target || currentRouteId.startsWith(`${target}/`);
+    // Exact match, plus keep highlight for subroutes
+    return pathNoBase === target || pathNoBase.startsWith(`${target}/`);
   };
 </script>
 
@@ -74,10 +87,9 @@
 <style>
   .layout {
     position: relative;
-    padding-top: 2.25rem; /* makes room so switcher doesn't sit under the nav */
+    padding-top: 2.25rem;
   }
 
-  /* Theme control: visible + clickable + not covered by nav */
   .color-scheme-switch {
     position: absolute;
     top: 0;
