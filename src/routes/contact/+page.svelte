@@ -6,25 +6,19 @@
 
 <form action="mailto:josephfn@mit.edu" method="GET">
   <label>
-    Email:
+    <span>Email:</span>
     <input name="email" type="email" />
   </label>
 
-  <br />
-
   <label>
-    Subject:
+    <span>Subject:</span>
     <input name="subject" />
   </label>
 
-  <br />
-
   <label>
-    Message:
+    <span>Message:</span>
     <textarea name="body"></textarea>
   </label>
-
-  <br />
 
   <button>Send</button>
 </form>
