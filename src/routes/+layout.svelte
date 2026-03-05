@@ -29,39 +29,22 @@
   );
 
   // --- Current-page highlighting ---
-  const strip_trailing_slash = (p) => (p.length > 1 ? p.replace(/\/+$/, "") : p);
+  const stripTrailingSlash = (p) => (p.length > 1 ? p.replace(/\/+$/, "") : p);
 
-  $: current_path = strip_trailing_slash($page.url.pathname);
-
-  const full_path_for = (url) => strip_trailing_slash(`${base}${url}`);
-
-  const home_path = strip_trailing_slash(`${base}/`);
+  $: currentPath = stripTrailingSlash($page.url.pathname);
 
   const isCurrent = (url) => {
     if (isExternal(url)) return false;
 
-    const target = full_path_for(url);
+    const homePath = stripTrailingSlash(`${base}/`);
+    const targetPath = stripTrailingSlash(`${base}${url}`);
 
     // Home must be exact match only
-    if (target === home_path) return current_path === home_path;
+    if (url === "/") return currentPath === homePath;
 
-    // Other pages: exact match, plus highlight for subroutes
-    return current_path === target || current_path.startsWith(`${target}/`);
+    // Others: exact match, plus highlight for subroutes
+    return currentPath === targetPath || currentPath.startsWith(`${targetPath}/`);
   };
-
-  const isCurrent = (url) => {
-    const target = linkPathname(url);
-    if (!target) return false;
-
-    // Home: exact match only
-    const homeTarget = normalize(new URL(hrefFor("/"), $page.url).pathname);
-    if (target === homeTarget) return currentPath === homeTarget;
-
-    // Other pages: exact match, plus keep highlight for subroutes
-    return currentPath === target || currentPath.startsWith(`${target}/`);
-  };
-
-
 </script>
 
 <div class="layout">
