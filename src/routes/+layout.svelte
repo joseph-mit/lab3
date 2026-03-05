@@ -20,7 +20,7 @@
   if (storage?.colorScheme) colorScheme = storage.colorScheme;
 
   // Persist whenever it changes
-  $: storage && (storage.colorScheme = colorScheme);
+  $: if (storage) storage.colorScheme = colorScheme;
 
   // Apply to <html>
   $: globalThis?.document?.documentElement?.style.setProperty(
@@ -29,21 +29,21 @@
   );
 
   // --- Current-page highlighting ---
-  const stripTrailingSlash = (p) => (p.length > 1 ? p.replace(/\/+$/, "") : p);
-
-  $: currentPath = stripTrailingSlash($page.url.pathname);
+  $: routeId = $page.route.id;
 
   const isCurrent = (url) => {
     if (isExternal(url)) return false;
 
-    const homePath = stripTrailingSlash(`${base}/`);
-    const targetPath = stripTrailingSlash(`${base}${url}`);
+    // Preferred: route id
+    if (routeId) {
+      if (url === "/") return routeId === "/";
+      return routeId === url || routeId.startsWith(`${url}/`);
+    }
 
-    // Home must be exact match only
-    if (url === "/") return currentPath === homePath;
-
-    // Others: exact match, plus highlight for subroutes
-    return currentPath === targetPath || currentPath.startsWith(`${targetPath}/`);
+    // Fallback: pathname compare
+    const pathname = $page.url.pathname;
+    if (url === "/") return pathname === `${base}/` || pathname === base || pathname === "/";
+    return pathname === `${base}${url}` || pathname.startsWith(`${base}${url}/`);
   };
 </script>
 
@@ -61,8 +61,8 @@
     {#each pages as p}
       <a
         href={hrefFor(p.url)}
-        target={isExternal(p.url) ? "_blank" : null}
-        rel={isExternal(p.url) ? "noreferrer" : null}
+        target={isExternal(p.url) ? "_blank" : undefined}
+        rel={isExternal(p.url) ? "noreferrer" : undefined}
         class:current={isCurrent(p.url)}
         aria-current={isCurrent(p.url) ? "page" : undefined}
       >
@@ -77,10 +77,9 @@
 <style>
   .layout {
     position: relative;
-    padding-top: 2.25rem; /* makes room so switcher doesn't sit under the nav */
+    padding-top: 2.25rem;
   }
 
-  /* Theme control: visible + clickable + not covered by nav */
   .color-scheme-switch {
     position: absolute;
     top: 0;
