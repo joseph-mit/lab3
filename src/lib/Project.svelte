@@ -1,43 +1,31 @@
 <script>
   import { base } from "$app/paths";
-
-  export let data = {};
+  export let data;
 </script>
 
-<article class="project-card">
+<div class="project">
   <h2>{data.title}</h2>
+  <p class="year">{data.year}</p>
 
-  <img
-    src={base + data.image}
-    alt={data.title}
-  />
+  <img src={base + data.image} alt={data.title} />
 
-  <p>{data.description}</p>
-</article>
+  <p class="description">{data.description}</p>
+</div>
 
 <style>
-  .project-card {
-    display: grid;
-    gap: 0.9rem;
-    align-content: start;
-  }
-
-  h2 {
-    margin: 0;
-    font-size: 1.5rem;
-    line-height: 1.15;
-  }
-
-  img {
-    display: block;
+  .project img {
     width: 100%;
-    aspect-ratio: 4 / 3;
-    object-fit: cover;
-    border-radius: 0.5rem;
+    height: auto;
+    border-radius: 0.75rem;
   }
 
-  p {
-    margin: 0;
-    line-height: 1.5;
+  .year {
+    margin: 0.25rem 0 0.75rem;
+    font-size: 0.95rem;
+    color: color-mix(in oklch, canvastext 60%, canvas);
+  }
+
+  .description {
+    margin: 0.75rem 0 0;
   }
 </style>

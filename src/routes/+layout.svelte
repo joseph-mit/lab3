@@ -11,17 +11,45 @@
   ];
 
   const isExternal = (url) => /^https?:\/\//.test(url);
-  const hrefFor = (url) => (isExternal(url) ? url : `${base}${url}`);
+  const stripTrailingSlash = (p) => (p.length > 1 ? p.replace(/\/+$/, "") : p);
 
-  let colorScheme = "light dark";
+  // --- Theme switcher (auto/light/dark) ---
+  let colorScheme = "light dark"; // Automatic
+
   const storage = globalThis?.localStorage;
   if (storage?.colorScheme) colorScheme = storage.colorScheme;
 
   $: storage && (storage.colorScheme = colorScheme);
+
   $: globalThis?.document?.documentElement?.style.setProperty(
     "color-scheme",
     colorScheme
   );
+
+  // --- Current-page highlighting  ---
+  $: currentPath = stripTrailingSlash($page.url.pathname);
+
+  let pathNoBase = "/";
+  $: {
+    const b = stripTrailingSlash(base || "");
+    if (b && currentPath.startsWith(b)) {
+      pathNoBase = stripTrailingSlash(currentPath.slice(b.length) || "/");
+    } else {
+      pathNoBase = currentPath;
+    }
+  }
+
+  const isCurrent = (url) => {
+    if (isExternal(url)) return false;
+
+    const target = stripTrailingSlash(url);
+
+    // Home: exact match only
+    if (target === "/") return pathNoBase === "/";
+
+    // Others: exact match OR any subroute under it
+    return pathNoBase === target || pathNoBase.startsWith(`${target}/`);
+  };
 </script>
 
 <div class="layout">
@@ -36,10 +64,13 @@
 
   <nav aria-label="Primary">
     {#each pages as p}
-      {@const active = $page.route?.id ?? "/"}
-      {@const target = isExternal(p.url) ? null : p.url}
-      {@const match = target === null ? false : target === "/" ? active === "/" : active === target || active.startsWith(target + "/")}
-      <a href={hrefFor(p.url)} target={isExternal(p.url) ? "_blank" : null} rel={isExternal(p.url) ? "noreferrer" : null} class:current={match}>
+      <a
+        href={isExternal(p.url) ? p.url : `${base}${p.url}`}
+        target={isExternal(p.url) ? "_blank" : undefined}
+        rel={isExternal(p.url) ? "noreferrer" : undefined}
+        class:current={isCurrent(p.url)}
+        aria-current={isCurrent(p.url) ? "page" : undefined}
+      >
         {p.title}
       </a>
     {/each}
@@ -58,10 +89,12 @@
     position: absolute;
     top: 0;
     right: 0;
+
     z-index: 2;
     display: inline-flex;
     gap: 0.5rem;
     align-items: center;
+
     font-size: 0.9rem;
     padding: 0.25rem 0.5rem;
     border: 1px solid var(--border-gray);
@@ -84,6 +117,7 @@
     display: flex;
     justify-content: center;
     gap: clamp(1rem, 4vw, 3.5rem);
+
     border-bottom: 2px solid var(--border-color);
     margin-bottom: 2rem;
     padding-bottom: 0.3rem;
