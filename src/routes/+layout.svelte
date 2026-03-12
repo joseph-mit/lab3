@@ -11,9 +11,9 @@
   ];
 
   const isExternal = (url) => /^https?:\/\//.test(url);
-  const stripTrailingSlash = (p) => (p.length > 1 ? p.replace(/\/+$/, "") : p);
+  const hrefFor = (url) => (isExternal(url) ? url : `${base}${url}`);
 
-  // --- Theme switcher (auto/light/dark) ---
+  // --- Theme switcher state (3 modes: auto/light/dark)
   let colorScheme = "light dark"; // Automatic
 
   const storage = globalThis?.localStorage;
@@ -26,29 +26,30 @@
     colorScheme
   );
 
-  // --- Current-page highlighting  ---
-  $: currentPath = stripTrailingSlash($page.url.pathname);
+  // --- Current-page highlighting ---
+  // The key idea: compare routes in a "base-independent" way.
+  // On GitHub Pages your URL is /lab3/..., but your *route* is still /projects, /resume, etc.
+  const stripTrailingSlash = (p) => (p.length > 1 ? p.replace(/\/+$/, "") : p);
 
-  let pathNoBase = "/";
-  $: {
-    const b = stripTrailingSlash(base || "");
-    if (b && currentPath.startsWith(b)) {
-      pathNoBase = stripTrailingSlash(currentPath.slice(b.length) || "/");
-    } else {
-      pathNoBase = currentPath;
-    }
-  }
+  $: pathname = stripTrailingSlash($page.url.pathname);
+  $: basePath = stripTrailingSlash(base || "");
+
+  // pathWithinSite is always "/", "/projects", "/resume", etc.
+  $: pathWithinSite =
+    basePath && pathname.startsWith(basePath)
+      ? stripTrailingSlash(pathname.slice(basePath.length) || "/")
+      : stripTrailingSlash(pathname || "/");
 
   const isCurrent = (url) => {
     if (isExternal(url)) return false;
 
     const target = stripTrailingSlash(url);
 
-    // Home: exact match only
-    if (target === "/") return pathNoBase === "/";
+    // Home should only match Home.
+    if (target === "/") return pathWithinSite === "/";
 
-    // Others: exact match OR any subroute under it
-    return pathNoBase === target || pathNoBase.startsWith(`${target}/`);
+    // Other pages should match exact + subroutes.
+    return pathWithinSite === target || pathWithinSite.startsWith(`${target}/`);
   };
 </script>
 
@@ -65,9 +66,9 @@
   <nav aria-label="Primary">
     {#each pages as p}
       <a
-        href={isExternal(p.url) ? p.url : `${base}${p.url}`}
-        target={isExternal(p.url) ? "_blank" : undefined}
-        rel={isExternal(p.url) ? "noreferrer" : undefined}
+        href={hrefFor(p.url)}
+        target={isExternal(p.url) ? "_blank" : null}
+        rel={isExternal(p.url) ? "noreferrer" : null}
         class:current={isCurrent(p.url)}
         aria-current={isCurrent(p.url) ? "page" : undefined}
       >
