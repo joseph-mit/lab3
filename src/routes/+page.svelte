@@ -25,7 +25,7 @@
         const cached = JSON.parse(cachedRaw);
         githubData = cached.data;
         loading = false;
-      } catch {
+      } catch (e) {
         /* corrupted cache, ignore */
       }
     }
@@ -43,7 +43,7 @@
               public_gists: 8
             })
           }
-        : await fetch(`https://api.github.com/users/${GITHUB_USERNAME}`);
+        : await fetch(`https://api.github.com/users/${joseph-mit}`);
 
       if (!response.ok) {
         throw new Error(`GitHub API error (${response.status})`);
