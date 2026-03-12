@@ -43,7 +43,7 @@
               public_gists: 8
             })
           }
-        : await fetch(`https://api.github.com/users/${joseph-mit}`);
+        : await fetch(`https://api.github.com/users/${GITHUB_USERNAME}`);
 
       if (!response.ok) {
         throw new Error(`GitHub API error (${response.status})`);
