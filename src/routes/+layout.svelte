@@ -13,44 +13,15 @@
   const isExternal = (url) => /^https?:\/\//.test(url);
   const hrefFor = (url) => (isExternal(url) ? url : `${base}${url}`);
 
-  // --- Theme switcher state (3 modes: auto/light/dark)
-  let colorScheme = "light dark"; // Automatic
-
+  let colorScheme = "light dark";
   const storage = globalThis?.localStorage;
   if (storage?.colorScheme) colorScheme = storage.colorScheme;
 
   $: storage && (storage.colorScheme = colorScheme);
-
   $: globalThis?.document?.documentElement?.style.setProperty(
     "color-scheme",
     colorScheme
   );
-
-  // --- Current-page highlighting ---
-  // The key idea: compare routes in a "base-independent" way.
-  // On GitHub Pages your URL is /lab3/..., but your *route* is still /projects, /resume, etc.
-  const stripTrailingSlash = (p) => (p.length > 1 ? p.replace(/\/+$/, "") : p);
-
-  $: pathname = stripTrailingSlash($page.url.pathname);
-  $: basePath = stripTrailingSlash(base || "");
-
-  // pathWithinSite is always "/", "/projects", "/resume", etc.
-  $: pathWithinSite =
-    basePath && pathname.startsWith(basePath)
-      ? stripTrailingSlash(pathname.slice(basePath.length) || "/")
-      : stripTrailingSlash(pathname || "/");
-
-  const isCurrent = (url) => {
-    if (isExternal(url)) return false;
-
-    const target = stripTrailingSlash(url);
-
-    // Home should only match Home.
-    if (target === "/") return pathWithinSite === "/";
-
-    // Other pages should match exact + subroutes.
-    return pathWithinSite === target || pathWithinSite.startsWith(`${target}/`);
-  };
 </script>
 
 <div class="layout">
@@ -65,12 +36,18 @@
 
   <nav aria-label="Primary">
     {#each pages as p}
-      <a
+      {@const active = $page.route?.id ?? "/"}
+      {@const target = isExternal(p.url) ? null : p.url}
+      {@const match = target === null
+        ? false
+        : target === "/"
+          ? active === "/"
+          : active === target || active.startsWith(target + "/")}
+
         href={hrefFor(p.url)}
         target={isExternal(p.url) ? "_blank" : null}
         rel={isExternal(p.url) ? "noreferrer" : null}
-        class:current={isCurrent(p.url)}
-        aria-current={isCurrent(p.url) ? "page" : undefined}
+        class:current={match}
       >
         {p.title}
       </a>
@@ -90,12 +67,10 @@
     position: absolute;
     top: 0;
     right: 0;
-
     z-index: 2;
     display: inline-flex;
     gap: 0.5rem;
     align-items: center;
-
     font-size: 0.9rem;
     padding: 0.25rem 0.5rem;
     border: 1px solid var(--border-gray);
@@ -118,7 +93,6 @@
     display: flex;
     justify-content: center;
     gap: clamp(1rem, 4vw, 3.5rem);
-
     border-bottom: 2px solid var(--border-color);
     margin-bottom: 2rem;
     padding-bottom: 0.3rem;

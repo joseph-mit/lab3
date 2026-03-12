@@ -22,7 +22,7 @@
 <ProjectNarrative />
 
 <p class="outro">
-  Thanks for reading the story. If you just want to browse, everything’s listed below.
+  Thanks for reading the story. If you just want to browse, everything's listed below.
 </p>
 
 <div class="projects-grid">

@@ -5,7 +5,6 @@
 
   let scrollyProgress = 0;
 
-  // Sort without mutating the original array (it avoids weird surprises later).
   const sorted_projects = projects.slice().sort((a, b) => a.year - b.year);
 
   const progressPerProject = 100 / sorted_projects.length;
@@ -20,29 +19,29 @@
 
 <div class="scrolly-wrapper">
   <Scrolly bind:progress={scrollyProgress}>
-    <section class="steps">
-      {#each sorted_projects as p}
-        <section class="step">
-          <div class="step-content">
-            <h3>{p.year} — {p.title}</h3>
-            <p>{p.story}</p>
-          </div>
-        </section>
-      {/each}
-    </section>
+    {#each sorted_projects as p}
+      <section class="step">
+        <div class="step-content">
+          <h3>{p.year} — {p.title}</h3>
+          <p>{p.story}</p>
+        </div>
+      </section>
+    {/each}
 
-    <div slot="viz" class="project-detail">
-      {#if activeProject}
-        <h3 class="project-year">{activeProject.year}</h3>
-        <img
-          class="project-image"
-          src={base + activeProject.image}
-          alt={`Image for ${activeProject.title}`}
-        />
-        <p class="project-title">{activeProject.title}</p>
-        <p class="project-desc">{activeProject.description}</p>
-      {/if}
-    </div>
+    <svelte:fragment slot="viz">
+      <div class="project-detail">
+        {#if activeProject}
+          <h3 class="project-year">{activeProject.year}</h3>
+          <img
+            class="project-image"
+            src={base + activeProject.image}
+            alt={`Image for ${activeProject.title}`}
+          />
+          <p class="project-title">{activeProject.title}</p>
+          <p class="project-desc">{activeProject.description}</p>
+        {/if}
+      </div>
+    </svelte:fragment>
   </Scrolly>
 </div>
 

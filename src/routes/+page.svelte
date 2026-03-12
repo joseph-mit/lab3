@@ -17,7 +17,6 @@
     loading = true;
     error = null;
 
-    // Small cache so you don't accidentally rate-limit yourself while tweaking CSS.
     const cacheKey = `github:${GITHUB_USERNAME}`;
     const cachedRaw = globalThis?.localStorage?.getItem(cacheKey);
 
@@ -27,12 +26,11 @@
         githubData = cached.data;
         loading = false;
       } catch {
-        // If the cache is corrupted, ignore it and fetch normally.
+        /* corrupted cache, ignore */
       }
     }
 
     try {
-      // Flip this to true temporarily if you're iterating fast and hitting rate limits.
       const USE_FAKE_API = false;
 
       const response = USE_FAKE_API
@@ -60,8 +58,6 @@
       );
     } catch (err) {
       error = err;
-
-      // If fetch failed but we already had cached data showing, keep the UI usable.
       if (!githubData) loading = false;
       return;
     }
@@ -151,7 +147,7 @@
   }
 
   .reading-panel {
-    background: #eadfe4;
+    background: color-mix(in oklch, var(--color-accent), canvas 88%);
     padding: 1.5rem;
     border-radius: 0.9rem;
   }
