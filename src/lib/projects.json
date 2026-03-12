@@ -1,86 +1,76 @@
 [
   {
-    "title": "Judo Match Video Analyzer",
-    "year": 2019,
-    "image": "/images/green-angel.jpg",
-    "description": "A scrappy tool to tag exchanges and track what actually worked under pressure.",
-    "story": "I started this because my memory of a match was always emotional and selective. The first time I plotted when I got thrown, I realized I was losing the same grip battle every time. It wasn’t flattering, but it was useful. The lesson: footage doesn’t care about your excuses, and that’s exactly why it helps."
-  },
-  {
-    "title": "Deal Memo Generator",
+    "title": "Campus Mobility Map",
     "year": 2020,
-    "image": "/images/stories-of-your-life.jpg",
-    "description": "A template-driven memo builder so I could spend time thinking, not formatting.",
-    "story": "I used to waste energy polishing the same sections over and over. Once I turned the structure into reusable blocks, the writing got sharper because I could focus on the argument. Weirdly, constraints made it easier to be honest: if I couldn’t state the risk in one sentence, I didn’t understand it yet."
-  },
-  {
-    "title": "Cap Rate Curve Sketchbook",
-    "year": 2021,
-    "image": "/images/parable-of-the-sower.jpg",
-    "description": "A small sandbox for stress-testing cap rate shifts across asset types.",
-    "story": "I built this after one too many conversations where people argued about ‘the’ cap rate as if it was a single number. When I forced myself to draw curves (not points), the uncertainty became visible. It made me calmer in meetings because I could say, ‘here’s the sensitivity,’ instead of pretending I knew the future."
-  },
-  {
-    "title": "Retail Footfall Heatmap",
-    "year": 2022,
-    "image": "/images/green-angel.jpg",
-    "description": "A prototype to compare pedestrian intensity by block and time of day.",
-    "story": "I thought I was looking for the ‘best’ corner. What I actually found was how quickly the story changes after 6pm. The first version of the map was flashy but misleading—too many colors, too little meaning. The second version was quieter, and finally told the truth."
-  },
-  {
-    "title": "Recipe Cost Optimizer",
-    "year": 2022,
-    "image": "/images/stories-of-your-life.jpg",
-    "description": "A simple calculator for price-per-protein and pantry planning.",
-    "story": "This one was personal: I wanted to eat well without turning food into a second job. Once I tracked cost-per-meal, I stopped ‘optimizing’ the wrong thing. The bigger insight wasn’t about money—it was about removing friction so I’d actually follow through."
-  },
-  {
-    "title": "Zoning Change Tracker",
-    "year": 2023,
-    "image": "/images/parable-of-the-sower.jpg",
-    "description": "A running log of policy changes with what they actually changed on the ground.",
-    "story": "I used to read zoning updates like they were abstract text. Then I started translating each change into: what becomes legal, what gets harder, and who benefits. The exercise made me more skeptical of neutral language. Small words can move millions of dollars."
-  },
-  {
-    "title": "Land Value Capture Case Study",
-    "year": 2024,
-    "image": "/images/green-angel.jpg",
-    "description": "A structured comparison of value capture tools and political tradeoffs.",
-    "story": "I kept seeing the same debate: ‘developers should pay more’ versus ‘we need housing.’ Once I laid out the mechanisms side by side, the argument got more concrete. The uncomfortable part is that the ‘best’ policy depends on who you’re willing to disappoint."
-  },
-  {
-    "title": "Portfolio Underwriting Sandbox",
-    "year": 2024,
-    "image": "/images/stories-of-your-life.jpg",
-    "description": "A lightweight underwriting model to compare deals on the same footing.",
-    "story": "I built this because I didn’t trust my own instincts when the numbers were presented differently each time. Standardizing the inputs made patterns show up immediately—especially where assumptions were doing all the work. It became a credibility check: if a deal only works with heroic assumptions, call it that."
-  },
-  {
-    "title": "Real Estate Carbon Budget Dashboard",
-    "year": 2025,
-    "image": "/images/parable-of-the-sower.jpg",
-    "description": "A simple view comparing operational vs embodied emissions across scenarios.",
-    "story": "The first draft made it look like there was a single ‘green’ answer. Then I separated embodied from operational carbon, and the tradeoffs stopped hiding. The result was messier, but more honest. That felt like real progress: the dashboard didn’t persuade, it clarified."
-  },
-  {
-    "title": "Transit Catchment Story Map",
-    "year": 2025,
-    "image": "/images/green-angel.jpg",
-    "description": "A narrative map showing walk sheds and transfer friction around key stations.",
-    "story": "I assumed the map would be about distance. It ended up being about time and patience. Two stops that look close can feel far if the transfer is miserable. Making that visible changed how I thought about ‘access’—it’s not geometry, it’s lived experience."
+    "image": "/images/pinot.png",
+    "description": "A quick explorable map prototype for commuting patterns around Cambridge.",
+    "story": "I made this for a GIS class and honestly didn't expect it to turn into anything. The hardest part was getting the basemap tiles to not look terrible at different zoom levels. I ended up learning way more about projections than I wanted to."
   },
   {
     "title": "Housing Affordability Explorer",
-    "year": 2026,
-    "image": "/images/stories-of-your-life.jpg",
-    "description": "Small multiples for rent burden and income bands, with neighborhood filters.",
-    "story": "I wanted a chart that didn’t shame people for struggling. When I got the bins wrong, the entire story tilted toward the wealthy neighborhoods. Fixing it wasn’t just ‘data cleaning’—it was an ethical correction. The final version is still imperfect, but at least it doesn’t lie by accident."
+    "year": 2021,
+    "image": "/images/pinot.png",
+    "description": "Small multiples for rent burden and income bands, with filters for neighborhood.",
+    "story": "The original version had a single bar chart and it was boring. I switched to small multiples after seeing some examples in class and it made the neighborhood differences actually jump out. Getting the color scales right took forever though."
   },
   {
-    "title": "Campus Mobility Map",
+    "title": "Real Estate Carbon Budget Dashboard",
+    "year": 2022,
+    "image": "/images/pinot.png",
+    "description": "A simple view comparing operational vs embodied emissions under retrofit scenarios.",
+    "story": "This came out of a group project where we had to pick a sustainability topic. I was the only one who wanted to do embodied carbon so I kind of ran with it. The toggle between operational and embodied views was my favorite part to build."
+  },
+  {
+    "title": "Transit Catchment Story Map",
+    "year": 2022,
+    "image": "/images/pinot.png",
+    "description": "A narrative map showing walk sheds and transfer friction across key stations.",
+    "story": "I ride the T every day and always thought the transfer at Park Street was worse than it looks on paper. This was basically me trying to prove that with data. Turns out I was right — the walk times between platforms are way longer than the schedule assumes."
+  },
+  {
+    "title": "Solar Potential Quick Look",
+    "year": 2023,
+    "image": "/images/pinot.png",
+    "description": "A lightweight calculator to sanity-check rooftop PV capacity by building type.",
+    "story": "A friend was looking at solar panels for their parents' house and asked me to help with the math. I turned it into a little web tool because I figured other people might want to do the same thing. It's pretty simple but people actually used it which was nice."
+  },
+  {
+    "title": "Retail Footfall Heatmap",
+    "year": 2023,
+    "image": "/images/pinot.png",
+    "description": "Weekday vs weekend foot traffic patterns for a corridor, grouped by hour.",
+    "story": "The data for this was a pain to clean — lots of missing hours and some sensors that just stopped working mid-week. But once I got it into a grid the weekday vs weekend pattern was really obvious. Weekends peak around 2pm, weekdays have that lunch rush bump."
+  },
+  {
+    "title": "Zoning Change Timeline",
+    "year": 2024,
+    "image": "/images/pinot.png",
+    "description": "A clean timeline of rezoning events, with quick links to the underlying documents.",
+    "story": "I got tired of scrolling through PDFs on the city website trying to find when specific zoning changes happened. So I scraped the meeting minutes and built a timeline. It's not fancy but it saves me a lot of time when I need to look something up for a paper."
+  },
+  {
+    "title": "Flood Risk Parcel Viewer",
+    "year": 2024,
+    "image": "/images/pinot.png",
+    "description": "Parcel-level lookup for flood zones and elevation, built for fast what-if checks.",
+    "story": "For a real estate finance class we had to evaluate a site and I wanted to check flood risk quickly without going through FEMA's clunky map tool. Leaflet made the map part easy, the annoying bit was joining the parcel boundaries to the flood zone polygons."
+  },
+  {
+    "title": "Construction Cost Sensitivity Tool",
+    "year": 2025,
+    "image": "/images/pinot.png",
+    "description": "A small sensitivity grid for hard-cost inflation, interest rates, and stabilized NOI.",
+    "story": "My professor kept saying 'run the sensitivity' in class and I realized I didn't have a good way to do that quickly. This is basically a spreadsheet logic but in the browser so I can tweak assumptions and see the IRR change in real time."
+  },
+  {
+    "title": "Noise Complaints Analyzer",
+    "year": 2025,
+    "image": "/images/pinot.png",
+    "description": "A quick pass at cleaning and summarizing 311 complaint text by topic and geography.",
+    "story": "I pulled this from Boston's 311 open data. Most of the work was text cleaning because people describe noise complaints in wildly different ways. 'Loud music' and 'neighbor playing bass at 3am' are the same thing but you'd never know from the raw data."
+  },
+  {
+    "title": "Street Tree Equity Audit",
     "year": 2026,
     "image": "/images/pinot.png",
-    "description": "A quick explorable map prototype for commuting patterns around Cambridge.",
-    "story": "This started as a fun mapping exercise and turned into a lesson in constraint. The best interactions weren’t the fancy ones—they were the ones that answered a single question quickly. After a few iterations, I realized my job wasn’t to show everything. It was to help someone decide what to do next."
-  }
-]
+    "description": "A simple

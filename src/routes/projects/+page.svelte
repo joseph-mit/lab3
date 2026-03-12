@@ -3,10 +3,8 @@
   import Project from "$lib/Project.svelte";
   import ProjectNarrative from "$lib/ProjectNarrative.svelte";
 
-  const years = projects.map((p) => p.year);
-  const minYear = Math.min(...years);
-  const maxYear = Math.max(...years);
-  const range = maxYear - minYear;
+  let years = projects.map(p => p.year);
+  let range = Math.max(...years) - Math.min(...years);
 </script>
 
 <svelte:head>
@@ -16,13 +14,13 @@
 <h1>{projects.length} Projects over {range} Years</h1>
 
 <p class="intro">
-  Scroll down to see a timeline of projects and what each one taught me along the way.
+  Scroll down to see a timeline of my projects and how they've shaped what I know.
 </p>
 
 <ProjectNarrative />
 
 <p class="outro">
-  Thanks for reading the story. If you just want to browse, everything's listed below.
+  Thanks for scrolling! Here's the full list if you want to browse.
 </p>
 
 <div class="projects-grid">
