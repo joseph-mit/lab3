@@ -43,8 +43,8 @@
         : target === "/"
           ? active === "/"
           : active === target || active.startsWith(target + "/")}
-
-        <a href={hrefFor(p.url)}
+      <a
+        href={hrefFor(p.url)}
         target={isExternal(p.url) ? "_blank" : null}
         rel={isExternal(p.url) ? "noreferrer" : null}
         class:current={match}
