@@ -2,11 +2,12 @@
   import { base } from "$app/paths";
   import { page } from "$app/stores";
 
-  const pages = [
+const pages = [
     { url: "/", title: "Home" },
     { url: "/projects", title: "Projects" },
     { url: "/resume", title: "Resume" },
     { url: "/contact", title: "Contact" },
+    { url: "/meta", title: "Meta" },
     { url: "https://github.com/joseph-mit", title: "GitHub" }
   ];
 
