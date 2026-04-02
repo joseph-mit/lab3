@@ -16,7 +16,10 @@
   let tooltipPosition = { x: 0, y: 0 };
   let commitTooltip;
 
-  $: hoveredCommit = commits[hoveredIndex] ?? hoveredCommit ?? {};
+let hoveredCommit = {};
+  $: if (hoveredIndex >= 0 && hoveredIndex < commits.length) {
+    hoveredCommit = commits[hoveredIndex];
+  }
 
   let width = 1000;
   let height = 600;
