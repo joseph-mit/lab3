@@ -16,10 +16,7 @@
   let tooltipPosition = { x: 0, y: 0 };
   let commitTooltip;
 
-let hoveredCommit = {};
-  $: if (hoveredIndex >= 0 && hoveredIndex < commits.length) {
-    hoveredCommit = commits[hoveredIndex];
-  }
+  $: hoveredCommit = commits[hoveredIndex] ?? hoveredCommit ?? {};
 
   let width = 1000;
   let height = 600;
@@ -133,6 +130,7 @@ let hoveredCommit = {};
     });
 
     commits = d3.sort(commits, d => -d.totalLines);
+
   });
 </script>
 
@@ -142,6 +140,28 @@ let hoveredCommit = {};
 
 <h1>Meta</h1>
 <p>Stats about the code of this website.</p>
+
+{#if commits.length > 0}
+  <dl class="stats">
+    <dt>Total <abbr title="Lines of code">LOC</abbr></dt>
+    <dd>{locData.length}</dd>
+
+    <dt>Commits</dt>
+    <dd>{commits.length}</dd>
+
+    <dt>Files</dt>
+    <dd>{d3.groups(locData, d => d.file).length}</dd>
+
+    <dt>Authors</dt>
+    <dd>{d3.groups(locData, d => d.author).length}</dd>
+
+    <dt>Max depth</dt>
+    <dd>{d3.max(locData, d => d.depth)}</dd>
+
+    <dt>Longest line</dt>
+    <dd>{d3.max(locData, d => d.length)} chars</dd>
+  </dl>
+{/if}
 
 <h2>Commits by time of day</h2>
 
@@ -269,5 +289,35 @@ let hoveredCommit = {};
   :global(.axis text) {
     font-size: 11px;
     fill: #555;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+    gap: 0.5rem 1.5rem;
+    margin: 1rem 0 1.5rem;
+    padding: 1rem 1.25rem;
+    border-radius: 0.6em;
+    background: var(--surface, #f5f5f5);
+    border: 1px solid var(--border-gray, #ddd);
+  }
+
+  .stats dt {
+    grid-row-end: span 2;
+    font-size: 0.72em;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #888;
+    font-weight: 600;
+    margin: 0;
+    align-self: end;
+  }
+
+  .stats dd {
+    margin: 0;
+    font-size: 1.5em;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
   }
 </style>
