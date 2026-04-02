@@ -2,10 +2,11 @@
   import * as d3 from 'd3';
 
   export let data = [];
+  export let title = '';
 
   let width = 650;
-  let height = 380;
-  let margin = { top: 50, right: 160, bottom: 65, left: 90 };
+  let height = 220;
+  let margin = { top: 40, right: 110, bottom: 50, left: 75 };
 
   $: innerWidth = width - margin.left - margin.right;
   $: innerHeight = height - margin.top - margin.bottom;
@@ -13,30 +14,34 @@
   let xAxis, yAxis;
 
   $: xScale = d3.scaleLinear()
-      .domain([0, d3.max(data, d => d.value) || 1])
-      .range([0, innerWidth])
-      .nice();
+    .domain([0, d3.max(data, d => d.value) || 1])
+    .range([0, innerWidth])
+    .nice();
 
   $: yScale = d3.scaleBand()
-      .domain(data.map(d => d.label))
-      .range([0, innerHeight])
-      .padding(0.25);
+    .domain(data.map(d => d.label))
+    .range([0, innerHeight])
+    .padding(0.25);
 
   $: colorScale = d3.scaleOrdinal(d3.schemeTableau10)
-      .domain(data.map(d => d.label));
+    .domain(data.map(d => d.label));
 
   $: maxBar = d3.greatest(data, d => d.value);
 
   $: if (xAxis && yAxis) {
-      d3.select(xAxis)
-        .call(d3.axisBottom(xScale))
-        .call(g => g.select('.domain').remove())
-        .call(g => g.selectAll('.tick line').remove());
+    d3.select(xAxis)
+      .call(
+        d3.axisBottom(xScale)
+          .ticks(Math.min(d3.max(data, d => d.value) || 10, 10))
+          .tickFormat(d => Number.isInteger(d) ? d : '')
+      )
+      .call(g => g.select('.domain').remove())
+      .call(g => g.selectAll('.tick line').remove());
 
-      d3.select(yAxis)
-        .call(d3.axisLeft(yScale))
-        .call(g => g.select('.domain').remove())
-        .call(g => g.selectAll('.tick line').remove());
+    d3.select(yAxis)
+      .call(d3.axisLeft(yScale))
+      .call(g => g.select('.domain').remove())
+      .call(g => g.selectAll('.tick line').remove());
   }
 </script>
 
@@ -45,10 +50,10 @@
     <!-- Chart title -->
     <text
       x={margin.left + innerWidth / 2}
-      y={24}
+      y={20}
       text-anchor="middle"
       class="chart-title">
-      Lines of Code by Language
+      {title || 'Lines of Code by Language'}
     </text>
 
     <!-- Axes -->
@@ -87,7 +92,7 @@
       {/each}
 
       <!-- Annotation -->
-      {#if maxBar}
+      {#if maxBar && maxBar.value > 0}
         <rect
           x={-1.5}
           y={yScale(maxBar.label) - 1.5}
@@ -99,18 +104,11 @@
           rx="3"
           ry="3"
         />
-        <line
-          x1={xScale(maxBar.value) + 4}
-          y1={yScale(maxBar.label) + yScale.bandwidth() / 2}
-          x2={xScale(maxBar.value) + 30}
-          y2={yScale(maxBar.label) + yScale.bandwidth() / 2}
-          stroke="#555"
-          stroke-width="1.2"
-        />
         <text
-          x={xScale(maxBar.value) + 34}
+          x={xScale(maxBar.value) + 6}
           y={yScale(maxBar.label) + yScale.bandwidth() / 2}
           dominant-baseline="middle"
+          text-anchor="start"
           class="annotation">
           Most lines of code
         </text>
@@ -119,7 +117,7 @@
       <!-- x-axis label -->
       <text
         x={innerWidth / 2}
-        y={innerHeight + 50}
+        y={innerHeight + 40}
         text-anchor="middle"
         class="axis-label">
         Lines of Code
@@ -128,11 +126,12 @@
       <!-- y-axis label -->
       <text
         x={-(innerHeight / 2)}
-        y={-margin.left + 15}
+        y={-margin.left + 12}
         text-anchor="middle"
         transform="rotate(-90)"
         class="axis-label">
-        Programming Language
+        <tspan x={-(innerHeight / 2)} dy="0">Programming</tspan>
+        <tspan x={-(innerHeight / 2)} dy="1.1em">Language</tspan>
       </text>
     </g>
   </svg>
@@ -153,7 +152,7 @@
     display: flex;
     align-items: start;
     gap: 0.75rem;
-    margin: 1.5rem 0 2rem;
+    margin: 1rem 0 2rem;
   }
 
   svg {
@@ -164,27 +163,27 @@
   }
 
   .chart-title {
-    font-size: 1.15em;
+    font-size: 0.95em;
     font-weight: 700;
     fill: currentColor;
     letter-spacing: -0.01em;
   }
 
   .axis-label {
-    font-size: 0.78em;
+    font-size: 0.68em;
     fill: #555;
     font-weight: 500;
   }
 
   .annotation {
-    font-size: 0.68em;
+    font-size: 0.6em;
     fill: #444;
     font-style: italic;
     font-weight: 500;
   }
 
   :global(.axis text) {
-    font-size: 11px;
+    font-size: 10px;
     fill: #555;
   }
 
@@ -193,22 +192,22 @@
     padding: 0.5rem 0;
     margin: 0;
     display: grid;
-    gap: 0.45rem;
+    gap: 0.35rem;
     align-self: center;
   }
 
   .legend li {
     display: flex;
     align-items: center;
-    gap: 0.45rem;
-    font-size: 0.82rem;
+    gap: 0.4rem;
+    font-size: 0.75rem;
     line-height: 1.2;
   }
 
   .swatch {
     display: inline-block;
-    width: 13px;
-    height: 13px;
+    width: 11px;
+    height: 11px;
     border-radius: 3px;
     background-color: var(--color);
     flex-shrink: 0;
