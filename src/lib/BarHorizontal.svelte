@@ -47,7 +47,6 @@
 
 <div class="chart-wrapper">
   <svg viewBox="0 0 {width} {height}">
-    <!-- Chart title -->
     <text
       x={margin.left + innerWidth / 2}
       y={20}
@@ -56,29 +55,21 @@
       {title || 'Lines of Code by Language'}
     </text>
 
-    <!-- Axes -->
     <g transform="translate({margin.left}, {margin.top + innerHeight})"
        bind:this={xAxis} class="axis x-axis" />
 
     <g transform="translate({margin.left}, {margin.top})"
        bind:this={yAxis} class="axis y-axis" />
 
-    <!-- Chart area -->
     <g transform="translate({margin.left}, {margin.top})">
-
-      <!-- Subtle vertical grid lines -->
       {#each xScale.ticks() as tick}
         <line
-          x1={xScale(tick)}
-          y1={0}
-          x2={xScale(tick)}
-          y2={innerHeight}
-          stroke="#e0e0e0"
-          stroke-dasharray="3,3"
+          x1={xScale(tick)} y1={0}
+          x2={xScale(tick)} y2={innerHeight}
+          stroke="#e0e0e0" stroke-dasharray="3,3"
         />
       {/each}
 
-      <!-- Bars -->
       {#each data as d}
         <rect
           x={0}
@@ -86,23 +77,17 @@
           width={xScale(d.value)}
           height={yScale.bandwidth()}
           fill={colorScale(d.label)}
-          rx="3"
-          ry="3"
+          rx="3" ry="3"
         />
       {/each}
 
-      <!-- Annotation -->
       {#if maxBar && maxBar.value > 0}
         <rect
           x={-1.5}
           y={yScale(maxBar.label) - 1.5}
           width={xScale(maxBar.value) + 3}
           height={yScale.bandwidth() + 3}
-          fill="none"
-          stroke="#333"
-          stroke-width="2"
-          rx="3"
-          ry="3"
+          fill="none" stroke="#333" stroke-width="2" rx="3" ry="3"
         />
         <text
           x={xScale(maxBar.value) + 6}
@@ -114,22 +99,13 @@
         </text>
       {/if}
 
-      <!-- x-axis label -->
-      <text
-        x={innerWidth / 2}
-        y={innerHeight + 40}
-        text-anchor="middle"
-        class="axis-label">
+      <text x={innerWidth / 2} y={innerHeight + 40}
+        text-anchor="middle" class="axis-label">
         Lines of Code
       </text>
 
-      <!-- y-axis label -->
-      <text
-        x={-(innerHeight / 2)}
-        y={-margin.left + 12}
-        text-anchor="middle"
-        transform="rotate(-90)"
-        class="axis-label">
+      <text x={-(innerHeight / 2)} y={-margin.left + 12}
+        text-anchor="middle" transform="rotate(-90)" class="axis-label">
         <tspan x={-(innerHeight / 2)} dy="0">Programming</tspan>
         <tspan x={-(innerHeight / 2)} dy="1.1em">Language</tspan>
       </text>
