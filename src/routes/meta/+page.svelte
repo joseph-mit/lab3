@@ -16,7 +16,10 @@
   let tooltipPosition = { x: 0, y: 0 };
   let commitTooltip;
 
-  $: hoveredCommit = commits[hoveredIndex] ?? hoveredCommit ?? {};
+  let hoveredCommit = {};
+  $: if (hoveredIndex >= 0 && hoveredIndex < commits.length) {
+    hoveredCommit = commits[hoveredIndex];
+  }
 
   let width = 1000;
   let height = 600;
@@ -63,10 +66,6 @@
         .tickFormat('')
         .tickSize(-usableArea.width)
     );
-  }
-
-  function isSelected(commit) {
-    return clickedCommits.includes(commit);
   }
 
   async function dotInteraction(index, evt) {
@@ -130,7 +129,6 @@
     });
 
     commits = d3.sort(commits, d => -d.totalLines);
-
   });
 </script>
 
@@ -163,6 +161,7 @@
   </dl>
 {/if}
 
+<!-- Scatter plot -->
 <h2>Commits by time of day</h2>
 
 <svg viewBox="0 0 {width} {height}">
@@ -170,14 +169,13 @@
   <g transform="translate({usableArea.left}, 0)" bind:this={yAxisEl} />
   <g transform="translate(0, {usableArea.bottom})" bind:this={xAxisEl} />
   <g class="dots">
-    {#each commits as commit, index}
+    {#each commits as commit, index (commit.id)}
       <circle
         cx={xScale(commit.datetime)}
         cy={yScale(commit.hourFrac)}
         r={rScale(commit.totalLines)}
-        fill="steelblue"
-        fill-opacity="0.6"
-        class:selected={isSelected(commit)}
+        class="dot"
+        class:selected={clickedCommits.includes(commit)}
         on:mouseenter={evt => dotInteraction(index, evt)}
         on:mouseleave={evt => dotInteraction(index, evt)}
         on:click={evt => dotInteraction(index, evt)}
@@ -186,6 +184,7 @@
   </g>
 </svg>
 
+<!-- Tooltip -->
 <dl
   class="info tooltip"
   hidden={hoveredIndex === -1}
@@ -204,6 +203,7 @@
   <dd>{hoveredCommit.totalLines}</dd>
 </dl>
 
+<!-- Bar chart -->
 {#if barData.length > 0}
   <BarHorizontal data={barData} title={barTitle} />
 {/if}
@@ -219,29 +219,27 @@
     stroke-opacity: 0.2;
   }
 
-  circle {
+  .dot {
+    fill: steelblue;
+    fill-opacity: 0.6;
     cursor: pointer;
     transition: 200ms;
     transform-origin: center;
     transform-box: fill-box;
   }
 
-  circle:hover {
+  .dot:hover {
     transform: scale(1.25);
-    fill: oklch(60% 45% 250);
+    fill: darkgreen;
   }
 
-  .selected {
+  .dot.selected {
     fill: var(--color-accent);
-    stroke: var(--color-accent);
-    stroke-width: 2;
-    stroke-dasharray: 5 3;
     fill-opacity: 0.9;
-    animation: marching-ants 2s linear infinite;
   }
 
-  @keyframes marching-ants {
-    to { stroke-dashoffset: -8; }
+  .dot.selected:hover {
+    fill: var(--color-accent);
   }
 
   dl.info {
@@ -270,11 +268,10 @@
     position: fixed;
     top: 1em;
     left: 1em;
-    background: oklch(100% 0% 0 / 92%);
-    box-shadow: 0 4px 18px oklch(0% 0 0 / 0.15);
+    background: white;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.15);
     border-radius: 0.6em;
     padding: 0.7em 1em;
-    backdrop-filter: blur(8px);
     pointer-events: auto;
     transition-duration: 500ms;
     transition-property: opacity, visibility;
@@ -317,7 +314,6 @@
     margin: 0;
     font-size: 1.5em;
     font-weight: 700;
-    font-variant-numeric: tabular-nums;
     line-height: 1.1;
   }
 </style>
