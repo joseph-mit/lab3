@@ -3,6 +3,7 @@
   import { onMount } from 'svelte';
   import * as d3 from 'd3';
   import BarHorizontal from '$lib/BarHorizontal.svelte';
+  import LineChart from '$lib/LineChart.svelte';
   import {
     computePosition,
     autoPlacement,
@@ -15,6 +16,8 @@
   let hoveredIndex = -1;
   let tooltipPosition = { x: 0, y: 0 };
   let commitTooltip;
+  let svg;
+  let linesByDate = [];
 
   let hoveredCommit = {};
   $: if (hoveredIndex >= 0 && hoveredIndex < commits.length) {
@@ -68,6 +71,33 @@
     );
   }
 
+  // Brushing
+  let brushSelection = null;
+
+  function brushed(evt) {
+    brushSelection = evt.selection;
+  }
+
+  function isCommitBrushed(commit) {
+    if (!brushSelection) return false;
+    let [[x0, y0], [x1, y1]] = brushSelection;
+    let cx = xScale(commit.datetime);
+    let cy = yScale(commit.hourFrac);
+    return cx >= x0 && cx <= x1 && cy >= y0 && cy <= y1;
+  }
+
+  $: {
+    if (svg) {
+      d3.select(svg).call(d3.brush()
+        .extent([[usableArea.left, usableArea.top], [usableArea.right, usableArea.bottom]])
+        .on("start brush end", brushed));
+      d3.select(svg).selectAll(".dots, .overlay ~ *").raise();
+    }
+  }
+
+  $: brushedCommits = brushSelection ? commits.filter(isCommitBrushed) : [];
+  $: selectedCommits = Array.from(new Set([...clickedCommits, ...brushedCommits]));
+
   async function dotInteraction(index, evt) {
     let hoveredDot = evt.target;
     if (evt.type === 'mouseenter') {
@@ -88,9 +118,10 @@
     }
   }
 
+  // Bar chart data (filtered by both brushed and clicked)
   $: selectedLines =
-    clickedCommits.length > 0
-      ? clickedCommits.flatMap(c => c.lines)
+    selectedCommits.length > 0
+      ? selectedCommits.flatMap(c => c.lines)
       : locData;
 
   $: languageCounts = d3.rollup(selectedLines, v => v.length, d => d.type);
@@ -101,9 +132,23 @@
   }));
 
   $: barTitle =
-    clickedCommits.length > 0
-      ? 'Lines of Code: Selected Commits'
+    selectedCommits.length > 0
+      ? `Lines of Code: ${selectedCommits.length} Selected Commits`
       : 'Lines of Code: Website Breakdown';
+
+  // Line chart data wrangling
+  $: {
+    if (locData.length > 0) {
+      let rolled = d3.rollups(locData, v => v.length, d => d3.timeDay.floor(d.datetime))
+        .map(([date, count]) => ({ date, count }));
+      let [minDate, maxDate] = d3.extent(rolled, d => d.date);
+      let allDays = d3.timeDays(minDate, d3.timeDay.offset(maxDate, 1));
+      linesByDate = allDays.map(date => ({
+        date,
+        count: rolled.find(r => r.date.getTime() === date.getTime())?.count ?? 0
+      }));
+    }
+  }
 
   onMount(async () => {
     locData = await d3.csv(`${base}/loc.csv`, row => ({
@@ -161,21 +206,21 @@
   </dl>
 {/if}
 
-<!-- Scatter plot -->
 <h2>Commits by time of day</h2>
 
-<svg viewBox="0 0 {width} {height}">
+<svg viewBox="0 0 {width} {height}" bind:this={svg}>
   <g class="gridlines" transform="translate({usableArea.left}, 0)" bind:this={yAxisGridlines} />
   <g transform="translate({usableArea.left}, 0)" bind:this={yAxisEl} />
   <g transform="translate(0, {usableArea.bottom})" bind:this={xAxisEl} />
   <g class="dots">
     {#each commits as commit, index (commit.id)}
+      <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
       <circle
         cx={xScale(commit.datetime)}
         cy={yScale(commit.hourFrac)}
         r={rScale(commit.totalLines)}
         class="dot"
-        class:selected={clickedCommits.includes(commit)}
+        class:selected={selectedCommits.includes(commit)}
         on:mouseenter={evt => dotInteraction(index, evt)}
         on:mouseleave={evt => dotInteraction(index, evt)}
         on:click={evt => dotInteraction(index, evt)}
@@ -184,7 +229,6 @@
   </g>
 </svg>
 
-<!-- Tooltip -->
 <dl
   class="info tooltip"
   hidden={hoveredIndex === -1}
@@ -203,9 +247,12 @@
   <dd>{hoveredCommit.totalLines}</dd>
 </dl>
 
-<!-- Bar chart -->
 {#if barData.length > 0}
   <BarHorizontal data={barData} title={barTitle} />
+{/if}
+
+{#if linesByDate.length > 0}
+  <LineChart data={linesByDate} />
 {/if}
 
 <style>
@@ -240,6 +287,18 @@
 
   .dot.selected:hover {
     fill: var(--color-accent);
+  }
+
+  @keyframes marching-ants {
+    to { stroke-dashoffset: -8; }
+  }
+
+  svg :global(.selection) {
+    fill-opacity: 10%;
+    stroke: black;
+    stroke-opacity: 70%;
+    stroke-dasharray: 5 3;
+    animation: marching-ants 2s linear infinite;
   }
 
   dl.info {
