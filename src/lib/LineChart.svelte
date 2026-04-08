@@ -62,7 +62,7 @@
   {hoveredDay ? `Lines Edited on ${hoveredDay}s` : 'Lines Edited by Day'}
 </h3>
 
-<!-- svelte-ignore a11y-no-static-element-interactions -->
+<!-- svelte-ignore a11y-no-static-element-interactions a11y-mouse-events-have-key-events -->
 <svg viewBox="0 0 {width} {height}" on:mouseleave={() => hoveredDay = null}>
   <!-- Highlight bands (behind everything) -->
   {#each dayRegions as region}
@@ -132,7 +132,7 @@
 
   <!-- Invisible hover regions (on top to catch events) -->
   {#each dayRegions as region}
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <!-- svelte-ignore a11y-no-static-element-interactions a11y-mouse-events-have-key-events -->
     <rect
       x={region.x}
       y={usableArea.top}

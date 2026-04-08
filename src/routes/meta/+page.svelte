@@ -214,7 +214,7 @@
   <g transform="translate(0, {usableArea.bottom})" bind:this={xAxisEl} />
   <g class="dots">
     {#each commits as commit, index (commit.id)}
-      <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
+      <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions a11y-mouse-events-have-key-events -->
       <circle
         cx={xScale(commit.datetime)}
         cy={yScale(commit.hourFrac)}
