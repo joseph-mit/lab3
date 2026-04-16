@@ -1,6 +1,7 @@
 [
   {
     "title": "BikeWatch",
+    "year": 2026,
     "description": "An interactive map visualization of BlueBikes traffic patterns in the Boston area, with time filtering and cycling isochrones.",
     "image": "images/bikewatching.png",
     "url": "https://joseph-mit.github.io/bikewatching/"
