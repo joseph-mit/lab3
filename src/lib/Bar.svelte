@@ -68,6 +68,9 @@
     if (!record) return;
     selectedLabel = record.label;
     liveText = `${record.label}: ${record.value} ${record.value === 1 ? 'project' : 'projects'} selected.`;
+    // Force Svelte 4 to flush reactive updates tied to selectedLabel.
+    selectedLabel = selectedLabel;
+    liveText = liveText;
   }
 
   function handleClick(event) {
@@ -91,6 +94,8 @@
   function barOpacity(label) {
     return selectedLabel === null || selectedLabel === label ? 1 : 0.45;
   }
+  // Reactive alias so Svelte's dependency graph tracks selectedLabel everywhere.
+  $: currentSelection = selectedLabel;
 </script>
 
 <button
@@ -130,7 +135,7 @@
          bind:this={xAxis} class="axis x-axis" aria-hidden="true" />
 
       <g transform="translate({margin.left}, {margin.top})">
-        {#each data as d (d.label)}
+        {#each data as d, index}
           <rect
             class="bar"
             data-label={d.label}
@@ -140,7 +145,7 @@
             height={innerHeight - yScale(d.value)}
             fill={colorScale(d.label)}
             stroke="currentColor"
-            style:opacity={barOpacity(d.label)}
+            style:opacity={currentSelection === null || currentSelection === d.label ? 1 : 0.45}
             rx="3"
             ry="3"
             tabindex="0"
@@ -155,7 +160,7 @@
           <g
             class="annotation-group"
             aria-hidden="true"
-            style:opacity={selectedLabel === null || selectedLabel === maxBar.label ? 1 : 0.35}
+            style:opacity={currentSelection === null || currentSelection === maxBar.label ? 1 : 0.35}
           >
             <rect
               class="annotation-outline"
