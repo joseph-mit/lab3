@@ -3,6 +3,8 @@
 
   export let data = [];
 
+  // Lab 10 — v4: plain DOM event binding via onclick attribute
+
   let width = 650;
   let height = 420;
   let margin = { top: 50, right: 160, bottom: 75, left: 70 };
@@ -21,8 +23,6 @@
       .domain([0, d3.max(data, d => d.value) || 1])
       .range([innerHeight, 0]);
 
-  // Colorblind-safe sequential Blues palette, skipping the lightest stop
-  // so no bar vanishes against a light canvas.
   $: colorScale = d3.scaleOrdinal()
       .domain(data.map(d => d.label))
       .range(d3.quantize(d3.interpolateBlues, data.length + 1).slice(1));
@@ -51,16 +51,10 @@
           .attr('stroke-dasharray', '3,3'));
   }
 
-// ---------- Accessibility state ----------
-  // We store the selected bar by its *label* (e.g. "2022"), not by its
-  // array index. Labels are stable across reactive re-renders; indices
-  // are not. This prevents selection from getting visually reset when
-  // the parent page hands us a new data array reference.
   let selectedLabel = null;
   let liveText = '';
   let showChart = true;
 
-  // Dynamic SVG description that stays in sync with the data.
   $: description = data.length > 0
     ? `A bar chart showing project counts by year. ${
         data
@@ -69,22 +63,33 @@
       }.`
     : 'A bar chart showing project counts by year. No data available.';
 
-  // The opacity for a given bar, computed directly from selectedIndex.
-  // -1 means nothing is selected, so everything is fully opaque.
-function barOpacity(label) {
-    return selectedLabel === null || selectedLabel === label ? 1 : 0.45;
+  function selectByLabel(label) {
+    const record = data.find(x => x.label === label);
+    if (!record) return;
+    selectedLabel = record.label;
+    liveText = `${record.label}: ${record.value} ${record.value === 1 ? 'project' : 'projects'} selected.`;
   }
 
-  function toggleBar(d, event) {
-    if (!event.key || event.key === 'Enter') {
-      selectedLabel = d.label;
-      liveText = `${d.label}: ${d.value} ${d.value === 1 ? 'project' : 'projects'} selected.`;
+  function handleClick(event) {
+    const label = event.currentTarget.getAttribute('data-label');
+    selectByLabel(label);
+  }
+
+  function handleKeyup(event) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      const label = event.currentTarget.getAttribute('data-label');
+      selectByLabel(label);
     }
   }
 
   function toggleView() {
     showChart = !showChart;
     liveText = showChart ? 'Bar chart view shown.' : 'Table view shown.';
+  }
+
+  function barOpacity(label) {
+    return selectedLabel === null || selectedLabel === label ? 1 : 0.45;
   }
 </script>
 
@@ -125,15 +130,10 @@ function barOpacity(label) {
          bind:this={xAxis} class="axis x-axis" aria-hidden="true" />
 
       <g transform="translate({margin.left}, {margin.top})">
-
-        <!-- Data bars: keyboard focusable, labeled, selectable.
-             Opacity is driven directly by selectedIndex — not by CSS
-             pseudo-classes — so mouse clicks and keyboard Enter both
-             produce identical, deterministic dimming. -->
         {#each data as d (d.label)}
-          <!-- svelte-ignore a11y-no-static-element-interactions -->
           <rect
             class="bar"
+            data-label={d.label}
             x={xScale(d.label)}
             y={yScale(d.value)}
             width={xScale.bandwidth()}
@@ -146,15 +146,11 @@ function barOpacity(label) {
             tabindex="0"
             role="button"
             aria-label={`${d.label}: ${d.value} ${d.value === 1 ? 'project' : 'projects'}`}
-            on:click={(e) => toggleBar(d, e)}
-            on:keyup={(e) => toggleBar(d, e)}
+            on:click={handleClick}
+            on:keyup={handleKeyup}
           />
         {/each}
 
-        <!-- Decorative annotation around the tallest bar.
-             pointer-events: none so it never steals hover/click from the
-             bar underneath. Dimmed together with the other bars whenever
-             a non-max bar is the selected one. -->
         {#if maxBar}
           <g
             class="annotation-group"
@@ -245,11 +241,9 @@ function barOpacity(label) {
   </table>
 {/if}
 
-<!-- ARIA live region: announces selection + view changes to screen readers -->
 <p class="sr-only" aria-live="polite" aria-atomic="true">{liveText}</p>
 
 <style>
-  /* ---------- Toggle button ---------- */
   .toggle-button {
     width: auto;
     padding: 0.35rem 0.85rem;
@@ -271,7 +265,6 @@ function barOpacity(label) {
     outline-offset: 2px;
   }
 
-  /* ---------- Chart layout ---------- */
   .container {
     display: flex;
     align-items: start;
@@ -286,10 +279,6 @@ function barOpacity(label) {
     flex: 0 1 650px;
   }
 
-  /* ---------- Bars ----------
-     No opacity rule here — the opacity attribute on each rect is the
-     single source of truth for dimming. CSS is only for stroke, cursor,
-     and the focus-visible ring. */
   .bar {
     stroke-width: 1;
     cursor: pointer;
@@ -303,13 +292,11 @@ function barOpacity(label) {
     stroke-dasharray: 4;
   }
 
-  /* ---------- Annotation group ---------- */
   .annotation-group {
     pointer-events: none;
     transition: opacity 250ms;
   }
 
-  /* ---------- SVG text (adaptive light/dark) ---------- */
   .chart-title {
     font-size: 1.15em;
     font-weight: 700;
@@ -338,7 +325,6 @@ function barOpacity(label) {
     opacity: 0.7;
   }
 
-  /* ---------- Legend ---------- */
   .legend {
     list-style: none;
     padding: 0.5rem 0;
@@ -375,7 +361,6 @@ function barOpacity(label) {
     font-size: 0.9em;
   }
 
-  /* ---------- Data table ---------- */
   .data-table {
     width: 100%;
     max-width: 30rem;
@@ -408,7 +393,6 @@ function barOpacity(label) {
     background: color-mix(in oklch, canvas 96%, canvastext 4%);
   }
 
-  /* ---------- Screen-reader-only (for the live region) ---------- */
   .sr-only {
     position: absolute;
     width: 1px;
