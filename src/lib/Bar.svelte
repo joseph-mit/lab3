@@ -290,7 +290,7 @@
   }
 
   /* Dim other bars when one is keyboard-focused. */
-  .container:focus-within .bar:not(:focus-visible) {
+  .container:focus-within .bar:not(:focus-visible):not(.selected) {
     opacity: 0.45;
   }
 
