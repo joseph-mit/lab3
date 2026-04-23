@@ -51,8 +51,12 @@
           .attr('stroke-dasharray', '3,3'));
   }
 
-  // ---------- Accessibility state ----------
-  let selectedIndex = -1;
+// ---------- Accessibility state ----------
+  // We store the selected bar by its *label* (e.g. "2022"), not by its
+  // array index. Labels are stable across reactive re-renders; indices
+  // are not. This prevents selection from getting visually reset when
+  // the parent page hands us a new data array reference.
+  let selectedLabel = null;
   let liveText = '';
   let showChart = true;
 
@@ -67,14 +71,13 @@
 
   // The opacity for a given bar, computed directly from selectedIndex.
   // -1 means nothing is selected, so everything is fully opaque.
-  function barOpacity(index) {
-    return selectedIndex === -1 || selectedIndex === index ? 1 : 0.45;
+function barOpacity(label) {
+    return selectedLabel === null || selectedLabel === label ? 1 : 0.45;
   }
 
-  function toggleBar(index, event) {
+  function toggleBar(d, event) {
     if (!event.key || event.key === 'Enter') {
-      selectedIndex = index;
-      const d = data[index];
+      selectedLabel = d.label;
       liveText = `${d.label}: ${d.value} ${d.value === 1 ? 'project' : 'projects'} selected.`;
     }
   }
@@ -127,7 +130,7 @@
              Opacity is driven directly by selectedIndex — not by CSS
              pseudo-classes — so mouse clicks and keyboard Enter both
              produce identical, deterministic dimming. -->
-        {#each data as d, index}
+        {#each data as d (d.label)}
           <!-- svelte-ignore a11y-no-static-element-interactions -->
           <rect
             class="bar"
@@ -137,14 +140,14 @@
             height={innerHeight - yScale(d.value)}
             fill={colorScale(d.label)}
             stroke="currentColor"
-            style:opacity={barOpacity(index)}
+            style:opacity={barOpacity(d.label)}
             rx="3"
             ry="3"
             tabindex="0"
             role="button"
             aria-label={`${d.label}: ${d.value} ${d.value === 1 ? 'project' : 'projects'}`}
-            on:click={(e) => toggleBar(index, e)}
-            on:keyup={(e) => toggleBar(index, e)}
+            on:click={(e) => toggleBar(d, e)}
+            on:keyup={(e) => toggleBar(d, e)}
           />
         {/each}
 
@@ -153,11 +156,10 @@
              bar underneath. Dimmed together with the other bars whenever
              a non-max bar is the selected one. -->
         {#if maxBar}
-          {@const maxIndex = data.indexOf(maxBar)}
           <g
             class="annotation-group"
             aria-hidden="true"
-            style:opacity={selectedIndex === -1 || selectedIndex === maxIndex ? 1 : 0.35}
+            style:opacity={selectedLabel === null || selectedLabel === maxBar.label ? 1 : 0.35}
           >
             <rect
               class="annotation-outline"
