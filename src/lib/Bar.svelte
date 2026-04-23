@@ -21,9 +21,8 @@
       .domain([0, d3.max(data, d => d.value) || 1])
       .range([innerHeight, 0]);
 
-  // Colorblind-safe sequential Blues palette.
-  // We sample data.length + 1 stops and drop the lightest so no bar
-  // is near-invisible against a light canvas in light mode.
+  // Colorblind-safe sequential Blues palette, skipping the lightest stop
+  // so no bar vanishes against a light canvas.
   $: colorScale = d3.scaleOrdinal()
       .domain(data.map(d => d.label))
       .range(d3.quantize(d3.interpolateBlues, data.length + 1).slice(1));
@@ -57,7 +56,7 @@
   let liveText = '';
   let showChart = true;
 
-  // A dynamic, always-in-sync description for the SVG <desc>.
+  // Dynamic SVG description that stays in sync with the data.
   $: description = data.length > 0
     ? `A bar chart showing project counts by year. ${
         data
@@ -65,6 +64,12 @@
           .join(', ')
       }.`
     : 'A bar chart showing project counts by year. No data available.';
+
+  // The opacity for a given bar, computed directly from selectedIndex.
+  // -1 means nothing is selected, so everything is fully opaque.
+  function barOpacity(index) {
+    return selectedIndex === -1 || selectedIndex === index ? 1 : 0.45;
+  }
 
   function toggleBar(index, event) {
     if (!event.key || event.key === 'Enter') {
@@ -91,7 +96,7 @@
 </button>
 
 {#if showChart}
-  <div class="container" class:has-selection={selectedIndex !== -1}>
+  <div class="container">
     <svg
       viewBox="0 0 {width} {height}"
       role="img"
@@ -118,18 +123,21 @@
 
       <g transform="translate({margin.left}, {margin.top})">
 
-        <!-- Data bars: keyboard focusable, labeled, selectable -->
+        <!-- Data bars: keyboard focusable, labeled, selectable.
+             Opacity is driven directly by selectedIndex — not by CSS
+             pseudo-classes — so mouse clicks and keyboard Enter both
+             produce identical, deterministic dimming. -->
         {#each data as d, index}
           <!-- svelte-ignore a11y-no-static-element-interactions -->
           <rect
             class="bar"
-            class:selected={selectedIndex === index}
             x={xScale(d.label)}
             y={yScale(d.value)}
             width={xScale.bandwidth()}
             height={innerHeight - yScale(d.value)}
             fill={colorScale(d.label)}
             stroke="currentColor"
+            style:opacity={barOpacity(index)}
             rx="3"
             ry="3"
             tabindex="0"
@@ -140,39 +148,46 @@
           />
         {/each}
 
-        <!-- Annotation around the tallest bar (decorative) -->
+        <!-- Decorative annotation around the tallest bar.
+             pointer-events: none so it never steals hover/click from the
+             bar underneath. Dimmed together with the other bars whenever
+             a non-max bar is the selected one. -->
         {#if maxBar}
-          <rect
-            class="annotation-outline"
-            x={xScale(maxBar.label) - 1.5}
-            y={yScale(maxBar.value) - 1.5}
-            width={xScale.bandwidth() + 3}
-            height={innerHeight - yScale(maxBar.value) + 1.5}
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            rx="3"
-            ry="3"
+          {@const maxIndex = data.indexOf(maxBar)}
+          <g
+            class="annotation-group"
             aria-hidden="true"
-          />
-          <line
-            x1={xScale(maxBar.label) + xScale.bandwidth() + 4}
-            y1={yScale(maxBar.value) + (innerHeight - yScale(maxBar.value)) / 2}
-            x2={xScale(maxBar.label) + xScale.bandwidth() + 30}
-            y2={yScale(maxBar.value) + (innerHeight - yScale(maxBar.value)) / 2}
-            stroke="currentColor"
-            stroke-width="1.2"
-            aria-hidden="true"
-          />
-          <text
-            x={xScale(maxBar.label) + xScale.bandwidth() + 34}
-            y={yScale(maxBar.value) + (innerHeight - yScale(maxBar.value)) / 2}
-            dominant-baseline="middle"
-            class="annotation"
-            aria-hidden="true"
+            style:opacity={selectedIndex === -1 || selectedIndex === maxIndex ? 1 : 0.35}
           >
-            Year with most projects
-          </text>
+            <rect
+              class="annotation-outline"
+              x={xScale(maxBar.label) - 1.5}
+              y={yScale(maxBar.value) - 1.5}
+              width={xScale.bandwidth() + 3}
+              height={innerHeight - yScale(maxBar.value) + 1.5}
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              rx="3"
+              ry="3"
+            />
+            <line
+              x1={xScale(maxBar.label) + xScale.bandwidth() + 4}
+              y1={yScale(maxBar.value) + (innerHeight - yScale(maxBar.value)) / 2}
+              x2={xScale(maxBar.label) + xScale.bandwidth() + 30}
+              y2={yScale(maxBar.value) + (innerHeight - yScale(maxBar.value)) / 2}
+              stroke="currentColor"
+              stroke-width="1.2"
+            />
+            <text
+              x={xScale(maxBar.label) + xScale.bandwidth() + 34}
+              y={yScale(maxBar.value) + (innerHeight - yScale(maxBar.value)) / 2}
+              dominant-baseline="middle"
+              class="annotation"
+            >
+              Year with most projects
+            </text>
+          </g>
         {/if}
 
         <text
@@ -269,36 +284,27 @@
     flex: 0 1 650px;
   }
 
-  /* ---------- Bars ---------- */
+  /* ---------- Bars ----------
+     No opacity rule here — the opacity attribute on each rect is the
+     single source of truth for dimming. CSS is only for stroke, cursor,
+     and the focus-visible ring. */
   .bar {
-    opacity: 1;
     stroke-width: 1;
     cursor: pointer;
     outline: none;
     transition: opacity 250ms, stroke 150ms, stroke-width 150ms;
   }
 
-  /* Dim non-selected bars when any bar is selected (but leave the one
-     currently hovered or keyboard-focused at full intensity). */
-  .container.has-selection .bar:not(.selected):not(:hover):not(:focus-visible) {
-    opacity: 0.45;
-  }
-
-  /* Dim other bars when one is hovered. */
-  svg:hover .bar:not(:hover) {
-    opacity: 0.45;
-  }
-
-  /* Dim other bars when one is keyboard-focused. */
-  .container:focus-within .bar:not(:focus-visible):not(.selected) {
-    opacity: 0.45;
-  }
-
-  /* High-contrast dashed outline for keyboard focus. */
   .bar:focus-visible {
     stroke: var(--color-accent);
     stroke-width: 2.5;
     stroke-dasharray: 4;
+  }
+
+  /* ---------- Annotation group ---------- */
+  .annotation-group {
+    pointer-events: none;
+    transition: opacity 250ms;
   }
 
   /* ---------- SVG text (adaptive light/dark) ---------- */
