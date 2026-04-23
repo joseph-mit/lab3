@@ -98,18 +98,29 @@
   $: brushedCommits = brushSelection ? commits.filter(isCommitBrushed) : [];
   $: selectedCommits = Array.from(new Set([...clickedCommits, ...brushedCommits]));
 
+  // Descriptive label for a single commit, used as aria-label on its circle.
+  function commitLabel(commit) {
+    const when = commit.datetime?.toLocaleString('en', {
+      dateStyle: 'long',
+      timeStyle: 'short'
+    });
+    const lineWord = commit.totalLines === 1 ? 'line' : 'lines';
+    return `Commit by ${commit.author} on ${when}, ${commit.totalLines} ${lineWord}.`;
+  }
+
   async function dotInteraction(index, evt) {
-    let hoveredDot = evt.target;
-    if (evt.type === 'mouseenter') {
+    const target = evt.target;
+    if (evt.type === 'mouseenter' || evt.type === 'focus') {
       hoveredIndex = index;
-      tooltipPosition = await computePosition(hoveredDot, commitTooltip, {
+      tooltipPosition = await computePosition(target, commitTooltip, {
         strategy: 'fixed',
         middleware: [offset(5), autoPlacement()]
       });
-    } else if (evt.type === 'mouseleave') {
+    } else if (evt.type === 'mouseleave' || evt.type === 'blur') {
       hoveredIndex = -1;
-    } else if (evt.type === 'click') {
-      let commit = commits[index];
+    } else if (evt.type === 'click' ||
+               (evt.type === 'keyup' && evt.key === 'Enter')) {
+      const commit = commits[index];
       if (!clickedCommits.includes(commit)) {
         clickedCommits = [...clickedCommits, commit];
       } else {
@@ -175,6 +186,11 @@
 
     commits = d3.sort(commits, d => -d.totalLines);
   });
+
+  // Dynamic screen-reader description for the scatterplot.
+  $: scatterDescription = commits.length > 0
+    ? `Scatterplot of ${commits.length} git commits. The horizontal axis is the commit date and the vertical axis is the hour of day from 0 to 24. Circle size is proportional to the number of lines changed in that commit.`
+    : 'Scatterplot of git commits, loading.';
 </script>
 
 <svelte:head>
@@ -208,10 +224,18 @@
 
 <h2>Commits by time of day</h2>
 
-<svg viewBox="0 0 {width} {height}" bind:this={svg}>
-  <g class="gridlines" transform="translate({usableArea.left}, 0)" bind:this={yAxisGridlines} />
-  <g transform="translate({usableArea.left}, 0)" bind:this={yAxisEl} />
-  <g transform="translate(0, {usableArea.bottom})" bind:this={xAxisEl} />
+<svg
+  viewBox="0 0 {width} {height}"
+  bind:this={svg}
+  role="img"
+  aria-labelledby="scatter-title scatter-desc"
+>
+  <title id="scatter-title">Commits by time of day</title>
+  <desc id="scatter-desc">{scatterDescription}</desc>
+
+  <g class="gridlines" transform="translate({usableArea.left}, 0)" bind:this={yAxisGridlines} aria-hidden="true" />
+  <g transform="translate({usableArea.left}, 0)" bind:this={yAxisEl} aria-hidden="true" />
+  <g transform="translate(0, {usableArea.bottom})" bind:this={xAxisEl} aria-hidden="true" />
   <g class="dots">
     {#each commits as commit, index (commit.id)}
       <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions a11y-mouse-events-have-key-events -->
@@ -221,9 +245,16 @@
         r={rScale(commit.totalLines)}
         class="dot"
         class:selected={selectedCommits.includes(commit)}
+        tabindex="0"
+        role="button"
+        aria-label={commitLabel(commit)}
+        aria-pressed={selectedCommits.includes(commit)}
         on:mouseenter={evt => dotInteraction(index, evt)}
         on:mouseleave={evt => dotInteraction(index, evt)}
+        on:focus={evt => dotInteraction(index, evt)}
+        on:blur={evt => dotInteraction(index, evt)}
         on:click={evt => dotInteraction(index, evt)}
+        on:keyup={evt => dotInteraction(index, evt)}
       />
     {/each}
   </g>
@@ -231,12 +262,13 @@
 
 <dl
   class="info tooltip"
+  role="tooltip"
   hidden={hoveredIndex === -1}
   style="left: {tooltipPosition.x}px; top: {tooltipPosition.y}px"
   bind:this={commitTooltip}
 >
   <dt>Commit</dt>
-  <dd><a href={hoveredCommit.url} target="_blank">{hoveredCommit.id}</a></dd>
+  <dd><a href={hoveredCommit.url} target="_blank" rel="noreferrer">{hoveredCommit.id}</a></dd>
   <dt>Author</dt>
   <dd>{hoveredCommit.author}</dd>
   <dt>Date</dt>
@@ -273,6 +305,7 @@
     transition: 200ms;
     transform-origin: center;
     transform-box: fill-box;
+    outline: none;
   }
 
   .dot:hover {
@@ -287,6 +320,13 @@
 
   .dot.selected:hover {
     fill: var(--color-accent);
+  }
+
+  /* Keyboard focus: dashed accent ring, no native outline. */
+  .dot:focus-visible {
+    stroke: var(--color-accent);
+    stroke-width: 2.5;
+    stroke-dasharray: 4;
   }
 
   @keyframes marching-ants {
